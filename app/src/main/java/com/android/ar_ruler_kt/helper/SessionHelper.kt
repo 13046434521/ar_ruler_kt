@@ -29,7 +29,7 @@ object SessionHelper : Helper(){
 
                 val cameraConfigFilter = CameraConfigFilter(session)
                 val list = session.getSupportedCameraConfigs(cameraConfigFilter)
-                cameraConfigFilter.targetFps = EnumSet.of(CameraConfig.TargetFps.TARGET_FPS_30)
+                cameraConfigFilter.targetFps = EnumSet.of(CameraConfig.TargetFps.TARGET_FPS_60)
                 cameraConfigFilter.depthSensorUsage = EnumSet.of(CameraConfig.DepthSensorUsage.DO_NOT_USE)
                 for (con in list){
                     Log.w(TAG,"id:${con.cameraId}   width:${con.imageSize.width}  height:${con.imageSize.height} upper:${con.fpsRange.upper }   lower${con.fpsRange.lower}")
@@ -47,8 +47,9 @@ object SessionHelper : Helper(){
                         } else {
                             Config.DepthMode.DISABLED
                         }
-
-
+                    focusMode = Config.FocusMode.AUTO
+                    updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
+                    planeFindingMode = Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL
                 })
             }catch (exception:Exception){
                 var msg = when (exception) {
