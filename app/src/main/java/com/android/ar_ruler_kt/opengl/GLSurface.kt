@@ -27,7 +27,7 @@ open class GLSurface : GLSurfaceView ,GLSurfaceView.Renderer{
         this.setEGLConfigChooser(8, 8, 8, 8, 24, 0) //深度位数，在setRender之前调用
 
         this.setRenderer(this)
-        this.renderMode = RENDERMODE_WHEN_DIRTY
+        this.renderMode = RENDERMODE_CONTINUOUSLY
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {

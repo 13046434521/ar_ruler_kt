@@ -19,17 +19,20 @@ object SessionHelper : Helper(){
             .setUpdateMode(Config.UpdateMode.BLOCKING)
             .setPlaneFindingMode(Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL)
     }
-    fun initialize(context:Context){
-        if (prepare(context)){
+    fun initialize(context:Context):Boolean{
+        return if (prepare(context)){
             session = Session(context,featureSet)
             val cameraConfigFilter = CameraConfigFilter(session)
             val list = session.getSupportedCameraConfigs(cameraConfigFilter)
             for (con in list){
                 Log.w(TAG,"id:${con.cameraId}   width:${con.imageSize.width}  height:${con.imageSize.height} upper:${con.fpsRange.upper }   lower${con.fpsRange.lower}")
             }
-            session.cameraConfig=list[11]
+            session.cameraConfig=list.last()
 
             session.configure(sessionConfig)
+            true
+        }else{
+            false
         }
     }
 

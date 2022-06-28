@@ -11,5 +11,4 @@ interface IBaseRenderer {
      fun onSurfaceCreated()
      fun onSurfaceChanged( width: Int, height: Int)
      fun onDrawFrame()
-
 }

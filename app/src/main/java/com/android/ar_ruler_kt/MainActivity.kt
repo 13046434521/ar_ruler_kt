@@ -2,6 +2,7 @@ package com.android.ar_ruler_kt
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import com.android.ar_ruler_kt.helper.SessionHelper
 import com.android.ar_ruler_kt.opengl.BackgroundRenderer
 import com.android.ar_ruler_kt.opengl.BackgroundSurface
@@ -18,11 +19,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        SessionHelper.initialize(this)
-
-
+        if (!SessionHelper.initialize(this)){
+            Toast.makeText(this,"ARCore初始化失败",Toast.LENGTH_SHORT).show()
+            return
+        }
         session.resume()
-        val  backgroundRenderer =backgroundSurface.iBaseRenderer as BackgroundRenderer
+        val backgroundRenderer = backgroundSurface.backgroundRenderer
         backgroundRenderer.session = session
 
         backgroundSurface.requestRender()

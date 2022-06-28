@@ -297,46 +297,46 @@ class HelloArRenderer(val activity: HelloArActivity) :
 
     // BackgroundRenderer.updateDisplayGeometry must be called every frame to update the coordinates
     // used to draw the background camera image.
-    backgroundRenderer.updateDisplayGeometry(frame)
-    val shouldGetDepthImage =
-      activity.depthSettings.useDepthForOcclusion() ||
-        activity.depthSettings.depthColorVisualizationEnabled()
-    if (camera.trackingState == TrackingState.TRACKING && shouldGetDepthImage) {
-      try {
-        val depthImage = frame.acquireDepthImage16Bits()
-        backgroundRenderer.updateCameraDepthTexture(depthImage)
-        depthImage.close()
-      } catch (e: NotYetAvailableException) {
-        // This normally means that depth data is not available yet. This is normal so we will not
-        // spam the logcat with this.
-      }
-    }
+//    backgroundRenderer.updateDisplayGeometry(frame)
+//    val shouldGetDepthImage =
+//      activity.depthSettings.useDepthForOcclusion() ||
+//        activity.depthSettings.depthColorVisualizationEnabled()
+//    if (camera.trackingState == TrackingState.TRACKING && shouldGetDepthImage) {
+//      try {
+//        val depthImage = frame.acquireDepthImage16Bits()
+//        backgroundRenderer.updateCameraDepthTexture(depthImage)
+//        depthImage.close()
+//      } catch (e: NotYetAvailableException) {
+//        // This normally means that depth data is not available yet. This is normal so we will not
+//        // spam the logcat with this.
+//      }
+//    }
 
     // Handle one tap per frame.
-    handleTap(frame, camera)
+//    handleTap(frame, camera)
 
     // Keep the screen unlocked while tracking, but allow it to lock when tracking stops.
-    trackingStateHelper.updateKeepScreenOnFlag(camera.trackingState)
+//    trackingStateHelper.updateKeepScreenOnFlag(camera.trackingState)
 
     // Show a message based on whether tracking has failed, if planes are detected, and if the user
     // has placed any objects.
-    val message: String? =
-      when {
-        camera.trackingState == TrackingState.PAUSED &&
-          camera.trackingFailureReason == TrackingFailureReason.NONE ->
-          activity.getString(R.string.searching_planes)
-        camera.trackingState == TrackingState.PAUSED ->
-          TrackingStateHelper.getTrackingFailureReasonString(camera)
-        session.hasTrackingPlane() && wrappedAnchors.isEmpty() ->
-          activity.getString(R.string.waiting_taps)
-        session.hasTrackingPlane() && wrappedAnchors.isNotEmpty() -> null
-        else -> activity.getString(R.string.searching_planes)
-      }
-    if (message == null) {
-      activity.view.snackbarHelper.hide(activity)
-    } else {
-      activity.view.snackbarHelper.showMessage(activity, message)
-    }
+//    val message: String? =
+//      when {
+//        camera.trackingState == TrackingState.PAUSED &&
+//          camera.trackingFailureReason == TrackingFailureReason.NONE ->
+//          activity.getString(R.string.searching_planes)
+//        camera.trackingState == TrackingState.PAUSED ->
+//          TrackingStateHelper.getTrackingFailureReasonString(camera)
+//        session.hasTrackingPlane() && wrappedAnchors.isEmpty() ->
+//          activity.getString(R.string.waiting_taps)
+//        session.hasTrackingPlane() && wrappedAnchors.isNotEmpty() -> null
+//        else -> activity.getString(R.string.searching_planes)
+//      }
+//    if (message == null) {
+//      activity.view.snackbarHelper.hide(activity)
+//    } else {
+//      activity.view.snackbarHelper.showMessage(activity, message)
+//    }
 
     // -- Draw background
     if (frame.timestamp != 0L) {
@@ -344,68 +344,68 @@ class HelloArRenderer(val activity: HelloArActivity) :
       // drawing possible leftover data from previous sessions if the texture is reused.
       backgroundRenderer.drawBackground(render)
     }
-
-    // If not tracking, don't draw 3D objects.
-    if (camera.trackingState == TrackingState.PAUSED) {
-      return
-    }
-
-    // -- Draw non-occluded virtual objects (planes, point cloud)
-
-    // Get projection matrix.
-    camera.getProjectionMatrix(projectionMatrix, 0, Z_NEAR, Z_FAR)
-
-    // Get camera matrix and draw.
-    camera.getViewMatrix(viewMatrix, 0)
-    frame.acquirePointCloud().use { pointCloud ->
-      if (pointCloud.timestamp > lastPointCloudTimestamp) {
-        pointCloudVertexBuffer.set(pointCloud.points)
-        lastPointCloudTimestamp = pointCloud.timestamp
-      }
-      Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
-      pointCloudShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix)
-      render.draw(pointCloudMesh, pointCloudShader)
-    }
-
-    // Visualize planes.
-    planeRenderer.drawPlanes(
-      render,
-      session.getAllTrackables<Plane>(Plane::class.java),
-      camera.displayOrientedPose,
-      projectionMatrix
-    )
-
-    // -- Draw occluded virtual objects
-
-    // Update lighting parameters in the shader
-    updateLightEstimation(frame.lightEstimate, viewMatrix)
-
-    // Visualize anchors created by touch.
-    render.clear(virtualSceneFramebuffer, 0f, 0f, 0f, 0f)
-    for ((anchor, trackable) in
-      wrappedAnchors.filter { it.anchor.trackingState == TrackingState.TRACKING }) {
-      // Get the current pose of an Anchor in world space. The Anchor pose is updated
-      // during calls to session.update() as ARCore refines its estimate of the world.
-      anchor.pose.toMatrix(modelMatrix, 0)
-
-      // Calculate model/view/projection matrices
-      Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0)
-      Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0)
-
-      // Update shader properties and draw
-      virtualObjectShader.setMat4("u_ModelView", modelViewMatrix)
-      virtualObjectShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix)
-      val texture =
-        if ((trackable as? InstantPlacementPoint)?.trackingMethod ==
-            InstantPlacementPoint.TrackingMethod.SCREENSPACE_WITH_APPROXIMATE_DISTANCE
-        ) {
-          virtualObjectAlbedoInstantPlacementTexture
-        } else {
-          virtualObjectAlbedoTexture
-        }
-      virtualObjectShader.setTexture("u_AlbedoTexture", texture)
-      render.draw(virtualObjectMesh, virtualObjectShader, virtualSceneFramebuffer)
-    }
+//
+//    // If not tracking, don't draw 3D objects.
+//    if (camera.trackingState == TrackingState.PAUSED) {
+//      return
+//    }
+//
+//    // -- Draw non-occluded virtual objects (planes, point cloud)
+//
+//    // Get projection matrix.
+//    camera.getProjectionMatrix(projectionMatrix, 0, Z_NEAR, Z_FAR)
+//
+//    // Get camera matrix and draw.
+//    camera.getViewMatrix(viewMatrix, 0)
+//    frame.acquirePointCloud().use { pointCloud ->
+//      if (pointCloud.timestamp > lastPointCloudTimestamp) {
+//        pointCloudVertexBuffer.set(pointCloud.points)
+//        lastPointCloudTimestamp = pointCloud.timestamp
+//      }
+//      Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
+//      pointCloudShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix)
+//      render.draw(pointCloudMesh, pointCloudShader)
+//    }
+//
+//    // Visualize planes.
+//    planeRenderer.drawPlanes(
+//      render,
+//      session.getAllTrackables<Plane>(Plane::class.java),
+//      camera.displayOrientedPose,
+//      projectionMatrix
+//    )
+//
+//    // -- Draw occluded virtual objects
+//
+//    // Update lighting parameters in the shader
+//    updateLightEstimation(frame.lightEstimate, viewMatrix)
+//
+//    // Visualize anchors created by touch.
+//    render.clear(virtualSceneFramebuffer, 0f, 0f, 0f, 0f)
+//    for ((anchor, trackable) in
+//      wrappedAnchors.filter { it.anchor.trackingState == TrackingState.TRACKING }) {
+//      // Get the current pose of an Anchor in world space. The Anchor pose is updated
+//      // during calls to session.update() as ARCore refines its estimate of the world.
+//      anchor.pose.toMatrix(modelMatrix, 0)
+//
+//      // Calculate model/view/projection matrices
+//      Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0)
+//      Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0)
+//
+//      // Update shader properties and draw
+//      virtualObjectShader.setMat4("u_ModelView", modelViewMatrix)
+//      virtualObjectShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix)
+//      val texture =
+//        if ((trackable as? InstantPlacementPoint)?.trackingMethod ==
+//            InstantPlacementPoint.TrackingMethod.SCREENSPACE_WITH_APPROXIMATE_DISTANCE
+//        ) {
+//          virtualObjectAlbedoInstantPlacementTexture
+//        } else {
+//          virtualObjectAlbedoTexture
+//        }
+//      virtualObjectShader.setTexture("u_AlbedoTexture", texture)
+//      render.draw(virtualObjectMesh, virtualObjectShader, virtualSceneFramebuffer)
+//    }
 
     // Compose the virtual scene with the background.
     backgroundRenderer.drawVirtualScene(render, virtualSceneFramebuffer, Z_NEAR, Z_FAR)
