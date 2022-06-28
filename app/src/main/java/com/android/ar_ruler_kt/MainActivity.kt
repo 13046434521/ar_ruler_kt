@@ -27,7 +27,10 @@ class MainActivity : AppCompatActivity() {
         val backgroundRenderer = backgroundSurface.backgroundRenderer
         backgroundRenderer.session = session
 
-        backgroundSurface.requestRender()
+        backgroundSurface.setOnClickListener {
+            backgroundSurface.requestRender()
+        }
+
 //        val frame =session.update()
 //        frame.acquireCameraImage().format
     }

@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import com.google.ar.core.*
+import com.google.ar.core.exceptions.*
+import java.util.*
 
 /**
  * @author：TianLong
@@ -21,15 +23,47 @@ object SessionHelper : Helper(){
     }
     fun initialize(context:Context):Boolean{
         return if (prepare(context)){
-            session = Session(context,featureSet)
-            val cameraConfigFilter = CameraConfigFilter(session)
-            val list = session.getSupportedCameraConfigs(cameraConfigFilter)
-            for (con in list){
-                Log.w(TAG,"id:${con.cameraId}   width:${con.imageSize.width}  height:${con.imageSize.height} upper:${con.fpsRange.upper }   lower${con.fpsRange.lower}")
-            }
-            session.cameraConfig=list.last()
+            try {
+                session = Session(context,featureSet)
 
-            session.configure(sessionConfig)
+
+                val cameraConfigFilter = CameraConfigFilter(session)
+                val list = session.getSupportedCameraConfigs(cameraConfigFilter)
+                cameraConfigFilter.targetFps = EnumSet.of(CameraConfig.TargetFps.TARGET_FPS_30)
+                cameraConfigFilter.depthSensorUsage = EnumSet.of(CameraConfig.DepthSensorUsage.DO_NOT_USE)
+                for (con in list){
+                    Log.w(TAG,"id:${con.cameraId}   width:${con.imageSize.width}  height:${con.imageSize.height} upper:${con.fpsRange.upper }   lower${con.fpsRange.lower}")
+                }
+                session.cameraConfig=list.last()
+
+
+                session.configure(session.config.apply {
+                    lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
+
+                    // Depth API is used if it is configured in Hello AR's settings.
+                    depthMode =
+                        if (session.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
+                            Config.DepthMode.AUTOMATIC
+                        } else {
+                            Config.DepthMode.DISABLED
+                        }
+
+
+                })
+            }catch (exception:Exception){
+                var msg = when (exception) {
+                    is UnavailableUserDeclinedInstallationException ->
+                        "Please install Google Play Services for AR"
+                    is UnavailableApkTooOldException -> "Please update ARCore"
+                    is UnavailableSdkTooOldException -> "Please update this app"
+                    is UnavailableDeviceNotCompatibleException -> "This device does not support AR"
+                    is CameraNotAvailableException -> "Camera not available. Try restarting the app."
+                    else -> "Failed to create AR session: $exception"
+                }
+                Log.e(TAG,msg)
+                return false
+            }
+
             true
         }else{
             false

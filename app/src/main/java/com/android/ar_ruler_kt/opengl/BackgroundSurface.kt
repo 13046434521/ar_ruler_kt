@@ -23,14 +23,17 @@ class BackgroundSurface: GLSurface {
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+        super.onSurfaceCreated(gl, config)
         backgroundRenderer.onSurfaceCreated()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+        super.onSurfaceChanged(gl,width,height)
         backgroundRenderer.onSurfaceChanged(width,height)
     }
 
     override fun onDrawFrame(gl: GL10?) {
+        super.onDrawFrame(gl)
         backgroundRenderer.onDrawFrame()
     }
 }
