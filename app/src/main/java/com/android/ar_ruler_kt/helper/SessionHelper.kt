@@ -26,7 +26,6 @@ object SessionHelper : Helper(){
             try {
                 session = Session(context,featureSet)
 
-
                 val cameraConfigFilter = CameraConfigFilter(session)
                 val list = session.getSupportedCameraConfigs(cameraConfigFilter)
                 cameraConfigFilter.targetFps = EnumSet.of(CameraConfig.TargetFps.TARGET_FPS_60)

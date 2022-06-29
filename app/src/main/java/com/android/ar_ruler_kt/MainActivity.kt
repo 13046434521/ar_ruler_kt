@@ -23,19 +23,24 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this,"ARCore初始化失败",Toast.LENGTH_SHORT).show()
             return
         }
-        session.resume()
         val backgroundRenderer = backgroundSurface.backgroundRenderer
         backgroundRenderer.session = session
-
-        backgroundSurface.setOnClickListener {
-            backgroundSurface.requestRender()
-        }
-
-//        val frame =session.update()
-//        frame.acquireCameraImage().format
     }
 
     override fun onResume() {
         super.onResume()
+        backgroundSurface.onResume()
+        session.resume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        backgroundSurface.onPause()
+        session.pause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        session.close()
     }
 }
