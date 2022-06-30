@@ -59,6 +59,8 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context) {
         u_CameraColorTexture =  GLES30.glGetUniformLocation(program,"u_CameraColorTexture")
         a_Position =  GLES30.glGetAttribLocation(program,"a_Position")
         a_CameraTexCoord =  GLES30.glGetAttribLocation(program,"a_CameraTexCoord")
+
+        Log.w(TAG,"$TAG,  a_Position:$a_Position    a_CameraTexCoord:$a_CameraTexCoord    u_CameraColorTexture:$u_CameraColorTexture")
         GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
     }
 
