@@ -17,12 +17,12 @@ import java.nio.FloatBuffer
  * @date：2022/6/27 23:31
  * @detail：背景 渲染 Renderer
  */
-class BackgroundRenderer(context : Context) : BaseRenderer(context),SessionImpl {
+class BackgroundRenderer(context : Context) : BaseRenderer(context) {
     override var fragmentPath: String = "shader/background_show_camera.frag"
     override var vertexPath: String = "shader/background_show_camera.vert"
 //    override var fragmentPath: String = "shader/RgbShader.frag"
 //    override var vertexPath: String = "shader/RgbShader.vert"
-    override var session :Session? = null
+
 
     var u_CameraColorTexture = -1
 
@@ -43,7 +43,7 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context),SessionImpl 
         textureCoord.position(0)
         return@lazy textureCoord
     }
-    val displayRotationHelper by lazy { DisplayRotationHelper(context) }
+
     var width = -1
     var height = -1
     //默认顶点坐标
@@ -51,17 +51,11 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context),SessionImpl 
         -1.0f, -1.0f, -1.0f, +1.0f, +1.0f, -1.0f, +1.0f, +1.0f
     )
 
-
     init {
         textureTarget = GLES11Ext.GL_TEXTURE_EXTERNAL_OES
     }
 
     override fun initShaderParameter() {
-        GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
-
-        GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
-
-        GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
         u_CameraColorTexture =  GLES30.glGetUniformLocation(program,"u_CameraColorTexture")
         a_Position =  GLES30.glGetAttribLocation(program,"a_Position")
         a_CameraTexCoord =  GLES30.glGetAttribLocation(program,"a_CameraTexCoord")
@@ -77,33 +71,11 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context),SessionImpl 
     override fun onSurfaceChanged(width: Int, height: Int) {
         this.width = width
         this.height = height
-        displayRotationHelper.onSurfaceChanged(width, height)
         Log.w(TAG,"onSurfaceChanged:width$width   height:$height")
     }
 
     override fun onDrawFrame() {
-        session?.run {
-            displayRotationHelper.updateSessionIfNeeded(session)
-            this.setCameraTextureName(textureIds[0])
-            val frame = this.update()
-
-            if (frame.hasDisplayGeometryChanged()) {
-                frame.transformCoordinates2d(
-                    Coordinates2d.OPENGL_NORMALIZED_DEVICE_COORDINATES,
-                    vertexCoords,
-                    Coordinates2d.TEXTURE_NORMALIZED,
-                    textureCoords)
-            }
-
-            if (frame.timestamp == 0L) {
-                return
-            }
-            upDate()
-        }
-    }
-
-    private fun upDate(){
-        GLError.maybeThrowGLException("upDate", "upDate")
+        GLError.maybeThrowGLException("BackgroundRenderer", "onDrawFrame")
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glUseProgram(program)
         GLES30.glBindTexture(textureTarget,textureIds[0])
