@@ -23,11 +23,18 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context) {
 //    override var fragmentPath: String = "shader/RgbShader.frag"
 //    override var vertexPath: String = "shader/RgbShader.vert"
 
+    init {
+        textureTarget = GLES11Ext.GL_TEXTURE_EXTERNAL_OES
+    }
 
     var u_CameraColorTexture = -1
-
     var a_Position = -1
     var a_CameraTexCoord = -1
+
+    //默认顶点坐标
+    private val quadCoords = floatArrayOf(
+        -1.0f, -1.0f, -1.0f, +1.0f, +1.0f, -1.0f, +1.0f, +1.0f
+    )
     val vertexCoords: FloatBuffer by lazy {
          val vertexBuffer: ByteBuffer = ByteBuffer.allocateDirect(quadCoords.size * 4)
          vertexBuffer.order(ByteOrder.nativeOrder())
@@ -42,17 +49,6 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context) {
         val textureCoord = textureBuffer.asFloatBuffer()
         textureCoord.position(0)
         return@lazy textureCoord
-    }
-
-    var width = -1
-    var height = -1
-    //默认顶点坐标
-    private val quadCoords = floatArrayOf(
-        -1.0f, -1.0f, -1.0f, +1.0f, +1.0f, -1.0f, +1.0f, +1.0f
-    )
-
-    init {
-        textureTarget = GLES11Ext.GL_TEXTURE_EXTERNAL_OES
     }
 
     override fun initShaderParameter() {

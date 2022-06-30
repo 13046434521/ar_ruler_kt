@@ -1,5 +1,6 @@
 package com.android.ar_ruler_kt
 
+import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -18,7 +19,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        val bit =BitmapFactory.decodeResource(this.resources,R.mipmap.ic_launcher)
         if (!SessionHelper.initialize(this)){
             Toast.makeText(this,"ARCore初始化失败",Toast.LENGTH_SHORT).show()
             return

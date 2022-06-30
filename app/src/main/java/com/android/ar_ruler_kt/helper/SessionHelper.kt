@@ -33,7 +33,7 @@ object SessionHelper : Helper(){
                 for (con in list){
                     Log.w(TAG,"id:${con.cameraId}   width:${con.imageSize.width}  height:${con.imageSize.height} upper:${con.fpsRange.upper }   lower${con.fpsRange.lower}")
                 }
-                session.cameraConfig=list.last()
+                session.cameraConfig=list.first()
 
 
                 session.configure(session.config.apply {

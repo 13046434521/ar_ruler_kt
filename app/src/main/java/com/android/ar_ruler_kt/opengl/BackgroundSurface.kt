@@ -17,6 +17,7 @@ import javax.microedition.khronos.opengles.GL10
  */
 class BackgroundSurface: GLSurface ,SessionImpl{
     lateinit var backgroundRenderer:BackgroundRenderer
+    lateinit var bitmapRenderer: BitmapRenderer
     private val displayRotationHelper by lazy { DisplayRotationHelper(context) }
     override var session : Session? = null
     constructor(context: Context) : super(context,null)
@@ -26,21 +27,26 @@ class BackgroundSurface: GLSurface ,SessionImpl{
 
     private fun initialize(context: Context){
         backgroundRenderer = BackgroundRenderer(context)
+        bitmapRenderer= BitmapRenderer(context)
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         super.onSurfaceCreated(gl, config)
         backgroundRenderer.onSurfaceCreated()
+        bitmapRenderer.onSurfaceCreated()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         super.onSurfaceChanged(gl,width,height)
         displayRotationHelper.onSurfaceChanged(width, height)
         backgroundRenderer.onSurfaceChanged(width,height)
+        bitmapRenderer.onSurfaceChanged(width,height)
     }
 
     override fun onDrawFrame(gl: GL10?) {
         super.onDrawFrame(gl)
+        bitmapRenderer.onDrawFrame()
+        return
         session?.run {
             displayRotationHelper.updateSessionIfNeeded(session)
             this.setCameraTextureName(backgroundRenderer.textureIds[0])
@@ -58,8 +64,9 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                 return
             }
 
-            backgroundRenderer.onDrawFrame()
-
+//            backgroundRenderer.onDrawFrame()
+//            bitmapRenderer.onDrawFrame()
+            val tt = System.currentTimeMillis()
             val camera = frame.camera
 
             if (camera.trackingState!=TrackingState.TRACKING){
@@ -68,7 +75,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
             }
 
             val hitResults =frame.hitTest(width/2F,height/2F)
-
+            // 锚点不知道是否准确
             for (hitResult in hitResults){
                 if (hitResult.trackable.trackingState==TrackingState.TRACKING){
                     val anchor = hitResult.createAnchor()
@@ -78,7 +85,8 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                     Log.w(TAG,"hitResult.distance:${hitResult.distance}")
                 }
             }
-        }
 
+            Log.w(TAG,"耗时：${System.currentTimeMillis()-tt}")
+        }
     }
 }

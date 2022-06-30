@@ -16,6 +16,8 @@ import com.android.ar_ruler_kt.helper.ShaderHelper
     var textureTarget = GLES30.GL_TEXTURE_2D
     override lateinit var vertexSource: String
     override lateinit var fragmentSource: String
+    var width = -1
+    var height = -1
 
     fun initProgram(){
         program = GLES30.glCreateProgram()
