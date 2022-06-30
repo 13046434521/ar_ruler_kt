@@ -2,9 +2,11 @@ package com.android.ar_ruler_kt.opengl
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import com.android.ar_ruler_kt.helper.DisplayRotationHelper
 import com.google.ar.core.Coordinates2d
 import com.google.ar.core.Session
+import com.google.ar.core.TrackingState
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -57,6 +59,25 @@ class BackgroundSurface: GLSurface ,SessionImpl{
             }
 
             backgroundRenderer.onDrawFrame()
+
+            val camera = frame.camera
+
+            if (camera.trackingState!=TrackingState.TRACKING){
+                Log.e(TAG,"It's error  because camera trackingState is ${camera.trackingState.name}")
+                return
+            }
+
+            val hitResults =frame.hitTest(width/2F,height/2F)
+
+            for (hitResult in hitResults){
+                if (hitResult.trackable.trackingState==TrackingState.TRACKING){
+                    val anchor = hitResult.createAnchor()
+                    if (anchor.trackingState == TrackingState.TRACKING){
+                        Log.w(TAG,"hitResult.distance:${anchor.pose.tx()}  ${anchor.pose.ty()}   ${anchor.pose.tz()}")
+                    }
+                    Log.w(TAG,"hitResult.distance:${hitResult.distance}")
+                }
+            }
         }
 
     }
