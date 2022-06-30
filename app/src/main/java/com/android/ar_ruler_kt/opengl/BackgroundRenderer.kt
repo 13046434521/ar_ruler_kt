@@ -107,7 +107,7 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context),SessionImpl 
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glUseProgram(program)
         GLES30.glBindTexture(textureTarget,textureIds[0])
-        GLES20.glUniform1i(u_CameraColorTexture, 0)
+        GLES30.glUniform1i(u_CameraColorTexture, 0)
         GLES30.glEnableVertexAttribArray(a_Position)
         GLES30.glEnableVertexAttribArray(a_CameraTexCoord)
 
@@ -121,5 +121,6 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context),SessionImpl 
         GLES30.glDisableVertexAttribArray(a_CameraTexCoord)
 
         GLES30.glBindTexture(textureTarget, 0)
+        GLES30.glUseProgram(0)
     }
 }

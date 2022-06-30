@@ -27,16 +27,14 @@ import com.android.ar_ruler_kt.helper.ShaderHelper
         GLES30.glShaderSource(fragShader,fragmentSource)
         GLES30.glCompileShader(vertexShader)
         GLES30.glCompileShader(fragShader)
-
         GLES30.glAttachShader(program,vertexShader)
         GLES30.glAttachShader(program,fragShader)
 
         GLES30.glLinkProgram(program)
-        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         GLES30.glUseProgram(program)
-        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
+
         initShaderParameter()
-        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
+
         GLES30.glDetachShader(program,vertexShader)
         GLES30.glDetachShader(program,fragShader)
         GLES30.glDeleteShader(vertexShader)
