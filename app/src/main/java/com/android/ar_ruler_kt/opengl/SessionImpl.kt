@@ -5,7 +5,7 @@ import com.google.ar.core.Session
 /**
  * @author：TianLong
  * @date：2022/6/27 23:51
- * @detail：
+ * @detail：Session接口
  */
 interface SessionImpl {
     var session: Session?

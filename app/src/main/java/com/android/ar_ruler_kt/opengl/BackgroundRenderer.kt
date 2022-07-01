@@ -20,8 +20,6 @@ import java.nio.FloatBuffer
 class BackgroundRenderer(context : Context) : BaseRenderer(context) {
     override var fragmentPath: String = "shader/background_show_camera.frag"
     override var vertexPath: String = "shader/background_show_camera.vert"
-//    override var fragmentPath: String = "shader/RgbShader.frag"
-//    override var vertexPath: String = "shader/RgbShader.vert"
 
     init {
         textureTarget = GLES11Ext.GL_TEXTURE_EXTERNAL_OES

@@ -6,7 +6,7 @@ import com.google.ar.core.Session
 /**
  * @author：TianLong
  * @date：2022/6/28 14:21
- * @detail：
+ * @detail：着色器变量接口
  */
 interface ShaderImpl {
     var context:Context

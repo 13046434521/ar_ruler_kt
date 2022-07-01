@@ -5,6 +5,4 @@ package com.android.ar_ruler_kt.helper
  * @date：2022/6/27 21:53
  * @detail：
  */
-open class Helper :HelperInterface{
-
-}
+open class Helper :HelperInterface

@@ -11,19 +11,19 @@ import com.android.ar_ruler_kt.opengl.BaseRenderer
 import com.google.ar.core.Session
 
 class MainActivity : AppCompatActivity() {
-    val session:Session by lazy {
-        SessionHelper.session
-    }
+    var session:Session? = null
     val backgroundSurface :BackgroundSurface by lazy{findViewById(R.id.gl_main_background)}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val bit =BitmapFactory.decodeResource(this.resources,R.mipmap.ic_launcher)
+
         if (!SessionHelper.initialize(this)){
             Toast.makeText(this,"ARCore初始化失败",Toast.LENGTH_SHORT).show()
             return
         }
+
+        session = SessionHelper.session
         backgroundSurface.session = session
         backgroundSurface.backgroundRenderer
     }
@@ -31,17 +31,17 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         backgroundSurface.onResume()
-        session.resume()
+        session?.resume()
     }
 
     override fun onPause() {
         super.onPause()
         backgroundSurface.onPause()
-        session.pause()
+        session?.pause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        session.close()
+        session?.close()
     }
 }
