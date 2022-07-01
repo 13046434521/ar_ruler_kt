@@ -45,8 +45,6 @@ class BackgroundSurface: GLSurface ,SessionImpl{
 
     override fun onDrawFrame(gl: GL10?) {
         super.onDrawFrame(gl)
-        bitmapRenderer.onDrawFrame()
-        return
         session?.run {
             displayRotationHelper.updateSessionIfNeeded(session)
             this.setCameraTextureName(backgroundRenderer.textureIds[0])
@@ -64,8 +62,8 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                 return
             }
 
-//            backgroundRenderer.onDrawFrame()
-//            bitmapRenderer.onDrawFrame()
+            backgroundRenderer.onDrawFrame()
+            bitmapRenderer.onDrawFrame()
             val tt = System.currentTimeMillis()
             val camera = frame.camera
 

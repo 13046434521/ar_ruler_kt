@@ -17,10 +17,10 @@
 
 layout(location = 0) in vec4 a_Position;
 layout(location = 1) in vec2 a_ColorTexCoord;
-
+uniform mat4 u_OrthoMatrix;
 out vec2 v_ColorTexCoord;
 
 void main() {
-  gl_Position = a_Position;
+  gl_Position = a_Position * u_OrthoMatrix;
   v_ColorTexCoord = a_ColorTexCoord;
 }

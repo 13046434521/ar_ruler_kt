@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.GLES30
 import android.opengl.GLUtils
+import android.opengl.Matrix
 import android.util.Log
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -25,8 +26,10 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer{
     }
 
     var u_ColorTexture = -1
+    var u_OrthoMatrix = -1
     var a_Position = -1
     var a_ColorTexCoord = -1
+    private val matrix = FloatArray(4 * 4)
 
     /**
      * 顶点坐标
@@ -70,9 +73,14 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer{
     }
 
     override fun initShaderParameter() {
+        GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
         u_ColorTexture =  GLES30.glGetUniformLocation(program,"u_ColorTexture")
+        GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
         a_Position =  GLES30.glGetAttribLocation(program,"a_Position")
+        GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
         a_ColorTexCoord =  GLES30.glGetAttribLocation(program,"a_ColorTexCoord")
+        GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
+        u_OrthoMatrix =  GLES30.glGetUniformLocation(program,"u_OrthoMatrix")
         GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
 
         Log.w(TAG,"$TAG,  a_Position:$a_Position    a_ColorTexCoord:$a_ColorTexCoord    u_ColorTexture:$u_ColorTexture")
@@ -93,6 +101,13 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer{
     override fun onSurfaceChanged(width: Int, height: Int) {
         this.width = width
         this.height = height
+        if (width > height) {
+            val x = width / (height.toFloat() / bitmap.height * bitmap.width)
+            Matrix.orthoM(matrix, 0, -x, x, -1f, 1f, -1f, 1f)
+        } else {
+            val y = height / (width.toFloat() / bitmap.width * bitmap.height)
+            Matrix.orthoM(matrix, 0, -1f, 1f, -y, y, -1f, 1f)
+        }
     }
 
     override fun onDrawFrame() {
@@ -100,14 +115,20 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer{
         GLES30.glUseProgram(program)
         GLES30.glBindTexture(textureTarget,textureIds[0])
         GLES30.glUniform1i(u_ColorTexture, 0)
+        GLES30.glUniformMatrix4fv(u_OrthoMatrix, 1, false, matrix, 0)
+
         GLES30.glEnableVertexAttribArray(a_Position)
         GLES30.glEnableVertexAttribArray(a_ColorTexCoord)
 
-
-        GLES30.glVertexAttribPointer(a_Position, 2, GLES30.GL_FLOAT, false, 0, this.vertexBuffer
-        )
+        GLES30.glVertexAttribPointer(a_Position, 2, GLES30.GL_FLOAT, false, 0, this.vertexBuffer)
         GLES30.glVertexAttribPointer(a_ColorTexCoord, 2, GLES30.GL_FLOAT, false, 0, textureBuffer)
-//        GLUtils.texImage2D(textureTarget, 0, bitmap, 0)
+
+        // 开启混色
+        GLES30.glEnable(GLES30.GL_BLEND)
+        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+        GLES30.glDepthMask(true)
+        GLES30.glDisable(GLES30.GL_BLEND)
+
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 4)
 
         GLES30.glDisableVertexAttribArray(a_Position)
