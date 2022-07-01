@@ -25,22 +25,18 @@ import com.android.ar_ruler_kt.helper.ShaderHelper
         val vertexShader = GLES30.glCreateShader(GLES30.GL_VERTEX_SHADER)
         vertexSource =  ShaderHelper.readRawTextFileFromAssets(context,vertexPath)
         fragmentSource = ShaderHelper.readRawTextFileFromAssets(context,fragmentPath)
-        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         GLES30.glShaderSource(vertexShader,vertexSource)
-        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         GLES30.glShaderSource(fragShader,fragmentSource)
-        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
+
         GLES30.glCompileShader(vertexShader)
-        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         GLES30.glCompileShader(fragShader)
-        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
+
         GLES30.glAttachShader(program,vertexShader)
-        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         GLES30.glAttachShader(program,fragShader)
-        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
+
         GLES30.glLinkProgram(program)
-        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         GLES30.glUseProgram(program)
+
         GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         initShaderParameter()
 

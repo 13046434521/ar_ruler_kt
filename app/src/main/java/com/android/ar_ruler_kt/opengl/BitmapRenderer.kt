@@ -16,7 +16,7 @@ import java.nio.FloatBuffer
  * @date：2022/6/30 22:28
  * @detail：
  */
-class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer{
+class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IMatrix{
     override var fragmentPath: String = "shader/bitmap_shader.frag"
     override var vertexPath: String = "shader/bitmap_shader.vert"
 //    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("test.webp")) }
@@ -29,7 +29,7 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer{
     var u_OrthoMatrix = -1
     var a_Position = -1
     var a_ColorTexCoord = -1
-    private val matrix = FloatArray(4 * 4)
+    override var matrix = FloatArray(4 * 4)
 
     /**
      * 顶点坐标
@@ -73,15 +73,12 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer{
     }
 
     override fun initShaderParameter() {
-        GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
         u_ColorTexture =  GLES30.glGetUniformLocation(program,"u_ColorTexture")
-        GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
         a_Position =  GLES30.glGetAttribLocation(program,"a_Position")
-        GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
         a_ColorTexCoord =  GLES30.glGetAttribLocation(program,"a_ColorTexCoord")
-        GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
         u_OrthoMatrix =  GLES30.glGetUniformLocation(program,"u_OrthoMatrix")
-        GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter$program")
+
+        GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter：$program")
 
         Log.w(TAG,"$TAG,  a_Position:$a_Position    a_ColorTexCoord:$a_ColorTexCoord    u_ColorTexture:$u_ColorTexture")
     }
@@ -91,11 +88,9 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer{
         initProgram()
         initTexture()
         GLES30.glBindTexture(textureTarget,textureIds[0])
-        GLError.maybeThrowGLException("BackgroundRenderer", "onDrawFrame")
         GLUtils.texImage2D(textureTarget, 0, bitmap, 0)
-        GLError.maybeThrowGLException("BackgroundRenderer", "onDrawFrame")
         GLES30.glBindTexture(textureTarget,0)
-        GLError.maybeThrowGLException(TAG, "onDrawFrame")
+        GLError.maybeThrowGLException(TAG, "onSurfaceCreated")
     }
 
     override fun onSurfaceChanged(width: Int, height: Int) {
@@ -123,13 +118,13 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer{
         GLES30.glVertexAttribPointer(a_Position, 2, GLES30.GL_FLOAT, false, 0, this.vertexBuffer)
         GLES30.glVertexAttribPointer(a_ColorTexCoord, 2, GLES30.GL_FLOAT, false, 0, textureBuffer)
 
-        // 开启混色
+        // 开启混色,混色在glDarwArrays之前不能关闭，否则不生效
         GLES30.glEnable(GLES30.GL_BLEND)
-        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
-        GLES30.glDepthMask(true)
-        GLES30.glDisable(GLES30.GL_BLEND)
+        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE)
 
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 4)
+
+        GLES30.glDisable(GLES30.GL_BLEND)
 
         GLES30.glDisableVertexAttribArray(a_Position)
         GLES30.glDisableVertexAttribArray(a_ColorTexCoord)
