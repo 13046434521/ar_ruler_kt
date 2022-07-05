@@ -14,6 +14,8 @@ import javax.microedition.khronos.opengles.GL
  * @author：TianLong
  * @date：2022/6/27 23:31
  * @detail：背景 渲染 Renderer
+ *          使用glBindBuffer来绑定索引缓冲区数据
+ *          调用glDrawElement来进行渲染
  */
 class BackgroundRenderer(context : Context) : BaseRenderer(context) {
     override var fragmentPath: String = "shader/background_show_camera.frag"
@@ -30,15 +32,15 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context) {
     //默认顶点坐标
     private val vertexCoords = floatArrayOf(
         -1.0f, -1.0f, //第0个点
-        +1.0f, -1.0f, //第1个点
-        +1.0f, +1.0f, //第2个点
-        -1.0f, +1.0f  //第3个点
+        -1.0f, +1.0f, //第1个点
+        +1.0f, -1.0f, //第2个点
+        +1.0f, +1.0f  //第3个点
     )
 
     // 两个三角形，组成一个正方形，根据顶点坐标顺序来写索引素和顺序
     private val indices = intArrayOf(
-        0,1,2,
-        2,3,0
+        0,2,3,
+        0,3,1
     )
 
     val indicesBuffer: IntBuffer by lazy {
@@ -80,8 +82,14 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context) {
         Log.w(TAG,"onSurfaceCreated")
         initProgram()
         initTexture()
-
-        GLES30.glUseProgram(program)
+//        // 绑定vbo
+//        val vbo = IntArray(1)
+//        GLES30.glGenBuffers(1,vbo,0)
+//        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,vbo[0])
+//        GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER,4 * vertexCoords.size,vertexBuffer,GLES30.GL_STATIC_DRAW)
+//        GLES30.glEnableVertexAttribArray(a_Position)
+//        GLES30.glVertexAttribPointer(a_Position, 2, GLES30.GL_FLOAT, false, 0, vertexBuffer)
+        // 绑定ibo
         val ibo = IntArray(1)
         GLES30.glGenBuffers(1,ibo,0)
         GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER,ibo[0])
@@ -107,15 +115,14 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context) {
         GLES30.glVertexAttribPointer(a_Position, 2, GLES30.GL_FLOAT, false, 0, vertexBuffer)
         GLES30.glVertexAttribPointer(a_CameraTexCoord, 2, GLES30.GL_FLOAT, false, 0, textureBuffer)
 
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 4)
-        GLError.maybeThrowGLException("BackgroundRenderer", "onDrawFrame")
         GLES30.glDrawElements(GLES30.GL_TRIANGLES,6,GLES30.GL_UNSIGNED_INT,0)
-        GLError.maybeThrowGLException("BackgroundRenderer", "onDrawFrame")
+
         GLES30.glDisable(GLES30.GL_CULL_FACE)
         GLES30.glDisableVertexAttribArray(a_Position)
         GLES30.glDisableVertexAttribArray(a_CameraTexCoord)
 
         GLES30.glBindTexture(textureTarget, 0)
         GLES30.glUseProgram(0)
+        GLError.maybeThrowGLException("BackgroundRenderer", "onDrawFrame")
     }
 }
