@@ -46,6 +46,7 @@ object SessionHelper : Helper(){
                         } else {
                             Config.DepthMode.DISABLED
                         }
+                    depthMode = Config.DepthMode.DISABLED
                     focusMode = Config.FocusMode.AUTO
                     updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
                     planeFindingMode = Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL
@@ -89,10 +90,5 @@ object SessionHelper : Helper(){
         }
         Log.w(TAG,"ARCore has prepared")
         return true
-    }
-
-    fun update():Frame{
-        val frame = session.update()
-        return frame
     }
 }

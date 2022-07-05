@@ -1,13 +1,12 @@
 package com.android.ar_ruler_kt
 
-import android.graphics.BitmapFactory
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Point
 import android.os.Bundle
+import android.view.MotionEvent
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.android.ar_ruler_kt.helper.SessionHelper
-import com.android.ar_ruler_kt.opengl.BackgroundRenderer
 import com.android.ar_ruler_kt.opengl.BackgroundSurface
-import com.android.ar_ruler_kt.opengl.BaseRenderer
 import com.google.ar.core.Session
 
 class MainActivity : AppCompatActivity() {
@@ -22,10 +21,13 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this,"ARCore初始化失败",Toast.LENGTH_SHORT).show()
             return
         }
-
+        val mPoint = Point()
+        this.getWindowManager().getDefaultDisplay().getSize(mPoint)
+        val motionEvent = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, mPoint.x / 2f, mPoint.y / 2f, 0);
         session = SessionHelper.session
         backgroundSurface.session = session
         backgroundSurface.backgroundRenderer
+        backgroundSurface.motionEvent = motionEvent
     }
 
     override fun onResume() {

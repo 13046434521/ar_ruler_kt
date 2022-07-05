@@ -23,4 +23,7 @@ in vec2 v_ColorTexCoord;
 
 layout(location = 0) out vec4 o_FragColor;
 
-void main() { o_FragColor = texture(u_ColorTexture, v_ColorTexCoord); }
+void main() {
+    o_FragColor = texture(u_ColorTexture, v_ColorTexCoord);
+//    o_FragColor = vec4(1.0,1.0,0.0,1.0);
+}

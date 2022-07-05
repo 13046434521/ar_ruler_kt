@@ -7,4 +7,6 @@ package com.android.ar_ruler_kt.opengl
  */
 interface IMatrix {
     var matrix: FloatArray
+
+    fun upDateMatrix(pose:FloatArray = FloatArray(16),viewMatrix:FloatArray = FloatArray(16),projectMatrix:FloatArray = FloatArray(16))
 }
