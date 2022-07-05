@@ -2,15 +2,13 @@ package com.android.ar_ruler_kt.opengl
 
 import android.content.Context
 import android.opengl.GLES11Ext
-import android.opengl.GLES20
 import android.opengl.GLES30
 import android.util.Log
-import com.android.ar_ruler_kt.helper.DisplayRotationHelper
-import com.google.ar.core.Coordinates2d
-import com.google.ar.core.Session
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import java.nio.IntBuffer
+import javax.microedition.khronos.opengles.GL
 
 /**
  * @author：TianLong
@@ -30,21 +28,41 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context) {
     var a_CameraTexCoord = -1
 
     //默认顶点坐标
-    private val quadCoords = floatArrayOf(
-        -1.0f, -1.0f, -1.0f, +1.0f, +1.0f, -1.0f, +1.0f, +1.0f
+    private val vertexCoords = floatArrayOf(
+        -1.0f, -1.0f, //第0个点
+        +1.0f, -1.0f, //第1个点
+        +1.0f, +1.0f, //第2个点
+        -1.0f, +1.0f  //第3个点
     )
-    val vertexCoords: FloatBuffer by lazy {
-         val vertexBuffer: ByteBuffer = ByteBuffer.allocateDirect(quadCoords.size * 4)
-         vertexBuffer.order(ByteOrder.nativeOrder())
-         val vertexCoord = vertexBuffer.asFloatBuffer()
-         vertexCoord.put(quadCoords).position(0)
+
+    // 两个三角形，组成一个正方形，根据顶点坐标顺序来写索引素和顺序
+    private val indices = intArrayOf(
+        0,1,2,
+        2,3,0
+    )
+
+    val indicesBuffer: IntBuffer by lazy {
+        val buffer: ByteBuffer = ByteBuffer.allocateDirect(indices.size * 4)
+        buffer.order(ByteOrder.nativeOrder())
+        val index = buffer.asIntBuffer()
+        index.put(indices).position(0)
+
+        return@lazy index
+    }
+
+    val vertexBuffer: FloatBuffer by lazy {
+         val buffer: ByteBuffer = ByteBuffer.allocateDirect(vertexCoords.size * 4)
+        buffer.order(ByteOrder.nativeOrder())
+         val vertexCoord = buffer.asFloatBuffer()
+         vertexCoord.put(vertexCoords).position(0)
 
          return@lazy vertexCoord
      }
-    val textureCoords: FloatBuffer by lazy {
-        val textureBuffer: ByteBuffer = ByteBuffer.allocateDirect(8 * 4)
-        textureBuffer.order(ByteOrder.nativeOrder())
-        val textureCoord = textureBuffer.asFloatBuffer()
+
+    val textureBuffer: FloatBuffer by lazy {
+        val buffer: ByteBuffer = ByteBuffer.allocateDirect(8 * 4)
+        buffer.order(ByteOrder.nativeOrder())
+        val textureCoord = buffer.asFloatBuffer()
         textureCoord.position(0)
         return@lazy textureCoord
     }
@@ -62,6 +80,12 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context) {
         Log.w(TAG,"onSurfaceCreated")
         initProgram()
         initTexture()
+
+        GLES30.glUseProgram(program)
+        val ibo = IntArray(1)
+        GLES30.glGenBuffers(1,ibo,0)
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER,ibo[0])
+        GLES30.glBufferData(GLES30.GL_ELEMENT_ARRAY_BUFFER,4 * indices.size,indicesBuffer,GLES30.GL_STATIC_DRAW)
     }
 
     override fun onSurfaceChanged(width: Int, height: Int) {
@@ -79,12 +103,15 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context) {
         GLES30.glEnableVertexAttribArray(a_Position)
         GLES30.glEnableVertexAttribArray(a_CameraTexCoord)
 
+        GLES30.glEnable(GLES30.GL_CULL_FACE)
+        GLES30.glVertexAttribPointer(a_Position, 2, GLES30.GL_FLOAT, false, 0, vertexBuffer)
+        GLES30.glVertexAttribPointer(a_CameraTexCoord, 2, GLES30.GL_FLOAT, false, 0, textureBuffer)
 
-        GLES30.glVertexAttribPointer(a_Position, 2, GLES30.GL_FLOAT, false, 0, vertexCoords)
-        GLES30.glVertexAttribPointer(a_CameraTexCoord, 2, GLES30.GL_FLOAT, false, 0, textureCoords)
-
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 4)
-
+//        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 4)
+        GLError.maybeThrowGLException("BackgroundRenderer", "onDrawFrame")
+        GLES30.glDrawElements(GLES30.GL_TRIANGLES,6,GLES30.GL_UNSIGNED_INT,0)
+        GLError.maybeThrowGLException("BackgroundRenderer", "onDrawFrame")
+        GLES30.glDisable(GLES30.GL_CULL_FACE)
         GLES30.glDisableVertexAttribArray(a_Position)
         GLES30.glDisableVertexAttribArray(a_CameraTexCoord)
 

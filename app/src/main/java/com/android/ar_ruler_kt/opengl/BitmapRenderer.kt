@@ -14,7 +14,7 @@ import java.nio.FloatBuffer
 /**
  * @author：TianLong
  * @date：2022/6/30 22:28
- * @detail：
+ * @detail：Bitmap 渲染
  */
 class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IMatrix{
     override var fragmentPath: String = "shader/bitmap_shader.frag"
@@ -34,12 +34,6 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IM
     /**
      * 顶点坐标
      */
-//    private val vertexCoords = floatArrayOf(
-//        -1.0f, -1.0f,
-//        -1.0f, +1.0f,
-//        +1.0f, -1.0f,
-//        +1.0f, +1.0f,
-//    )
     private val threshold = 0.6f
     private val vertexCoords = floatArrayOf(
         -threshold, -threshold,
@@ -47,6 +41,7 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IM
         -threshold, +threshold,
         +threshold, +threshold,
     )
+
 
     private val index = floatArrayOf(
 
@@ -61,18 +56,7 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IM
         0.0f, 0.0f,
         1.0f, 0.0f,
     )
-//    private val textureCoord = floatArrayOf(
-//        0.0f, 0.0f,
-//        1.0f, 0.0f,
-//        0.0f, 1.0f,
-//        1.0f, 1.0f,
-//    )
-//    private val textureCoord = floatArrayOf(
-//        0.0f, 1.0f,
-//        0.0f, 0.0f,
-//        1.0f, 1.0f,
-//        1.0f, 0.0f,
-//    )
+
     val vertexBuffer: FloatBuffer by lazy {
         val buffer: ByteBuffer = ByteBuffer.allocateDirect(this.vertexCoords.size * 4)
         buffer.order(ByteOrder.nativeOrder())
@@ -136,7 +120,7 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IM
         GLES30.glUniformMatrix4fv(u_MvpMatrix, 1, false, matrix, 0)
         GLES30.glEnableVertexAttribArray(a_Position)
         GLES30.glEnableVertexAttribArray(a_ColorTexCoord)
-        GLES30.glVertexAttribPointer(a_Position, 2, GLES30.GL_FLOAT, false, 0, this.vertexBuffer)
+        GLES30.glVertexAttribPointer(a_Position, 2, GLES30.GL_FLOAT, false, 0, vertexBuffer)
         GLES30.glVertexAttribPointer(a_ColorTexCoord, 2, GLES30.GL_FLOAT, false, 0, textureBuffer)
 
         GLES30.glDepthMask(false)

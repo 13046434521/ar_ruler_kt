@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.MotionEvent
 import com.android.ar_ruler_kt.helper.DisplayRotationHelper
 import com.google.ar.core.*
-import java.lang.Exception
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -62,9 +61,9 @@ class BackgroundSurface: GLSurface ,SessionImpl{
             if (frame.hasDisplayGeometryChanged()) {
                 frame.transformCoordinates2d(
                     Coordinates2d.OPENGL_NORMALIZED_DEVICE_COORDINATES,
-                    backgroundRenderer.vertexCoords,
+                    backgroundRenderer.vertexBuffer,
                     Coordinates2d.TEXTURE_NORMALIZED,
-                    backgroundRenderer.textureCoords)
+                    backgroundRenderer.textureBuffer)
             }
 
             if (frame.timestamp == 0L) {
