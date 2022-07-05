@@ -19,8 +19,8 @@ import java.nio.FloatBuffer
 class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IMatrix{
     override var fragmentPath: String = "shader/bitmap_shader.frag"
     override var vertexPath: String = "shader/bitmap_shader.vert"
-    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("test.webp")) }
-//    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("pointCircle.png")) }
+//    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("test.webp")) }
+    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("pointCircle.png")) }
     init {
         textureTarget =GLES30.GL_TEXTURE_2D
     }
@@ -40,7 +40,7 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IM
 //        +1.0f, -1.0f,
 //        +1.0f, +1.0f,
 //    )
-    private val threshold = 0.3f
+    private val threshold = 0.6f
     private val vertexCoords = floatArrayOf(
         -threshold, -threshold,
         +threshold, -threshold,

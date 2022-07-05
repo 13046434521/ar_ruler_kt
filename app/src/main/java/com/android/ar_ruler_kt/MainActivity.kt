@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.android.ar_ruler_kt.helper.FullScreenHelper
 import com.android.ar_ruler_kt.helper.SessionHelper
 import com.android.ar_ruler_kt.opengl.BackgroundSurface
 import com.google.ar.core.Session
@@ -45,5 +46,10 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         session?.close()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        FullScreenHelper.setFullScreenOnWindowFocusChanged(this,true)
     }
 }

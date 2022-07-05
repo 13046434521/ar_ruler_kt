@@ -194,7 +194,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
             "shaders/point_cloud.frag",
             /*defines=*/ null
           )
-          .setVec4("u_Color", floatArrayOf(31.0f / 255.0f, 188.0f / 255.0f, 210.0f / 255.0f, 1.0f))
+          .setVec4("u_Color", floatArrayOf(255.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f, 1.0f))
           .setFloat("u_PointSize", 5.0f)
 
       // four entries per vertex: X, Y, Z, confidence
@@ -502,7 +502,6 @@ class HelloArRenderer(val activity: HelloArActivity) :
           else -> false
         }
       }
-
     if (firstHitResult != null) {
       // Cap the number of objects created. This avoids overloading both the
       // rendering system and ARCore.

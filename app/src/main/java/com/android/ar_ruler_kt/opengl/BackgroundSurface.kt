@@ -94,6 +94,8 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                 val hitResult = hitResults.last()
                 trackable(hitResult.trackable)
                 val trackable = hitResult.trackable
+                if (trackable is Point ) Log.w(TAG,"trackable is Point:${trackable.orientationMode.name}")
+
                 if (trackable is Plane ) Log.w(TAG,"trackable is Plane:${trackable.type.name}")
 
                 if ((trackable is Plane ) && (trackable.isPoseInPolygon(hitResult.hitPose))){
@@ -104,7 +106,6 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                         anchor.pose.toMatrix(pose ,0)
                         bitmapRenderer.upDateMatrix(pose,viewMatrix,projectMatrix)
                         bitmapRenderer.onDrawFrame()
-                        Log.w(TAG,"anchor:${anchor.pose.tx()} ${camera.pose.tx()} ${anchor.pose.ty()} ${camera.pose.ty()}  ${anchor.pose.tz()} ${camera.pose.tz()}")
                     }
                     Log.w(TAG,"hitResult.distance:${hitResult.distance}")
                 }
