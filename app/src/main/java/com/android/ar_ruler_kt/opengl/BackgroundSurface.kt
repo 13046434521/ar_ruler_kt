@@ -22,8 +22,11 @@ class BackgroundSurface: GLSurface ,SessionImpl{
     var projectMatrix = FloatArray(16)
     var motionEvent:MotionEvent? = null
 
+    var anchorList = ArrayList<Anchor>(10)
+
     private val displayRotationHelper by lazy { DisplayRotationHelper(context) }
     override var session : Session? = null
+
     constructor(context: Context) : super(context,null)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs){
         initialize(context)
@@ -71,7 +74,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
             }
 
             backgroundRenderer.onDrawFrame()
-//            bitmapRenderer.onDrawFrame()
+
             val tt = System.currentTimeMillis()
             val camera = frame.camera
 
@@ -99,7 +102,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
 
 //                if ((trackable is Plane ) && (trackable.isPoseInPolygon(hitResult.hitPose))){
 
-                if ((trackable is Plane ) or (trackable is Point)){
+                if ((trackable is Plane ) or (trackable is Point) or (trackable is DepthPoint )){
                     val anchor = hitResult.createAnchor()
                     if (anchor.trackingState == TrackingState.TRACKING){
                         // 获取点的位置

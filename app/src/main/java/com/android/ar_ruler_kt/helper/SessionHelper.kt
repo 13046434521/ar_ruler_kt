@@ -46,7 +46,7 @@ object SessionHelper : Helper(){
                         } else {
                             Config.DepthMode.DISABLED
                         }
-                    depthMode = Config.DepthMode.DISABLED
+                    depthMode =  Config.DepthMode.DISABLED
                     focusMode = Config.FocusMode.AUTO
                     updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
                     planeFindingMode = Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL
