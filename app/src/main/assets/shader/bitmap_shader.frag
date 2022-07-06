@@ -22,7 +22,7 @@ uniform sampler2D u_ColorTexture;
 in vec2 v_ColorTexCoord;
 
 layout(location = 0) out vec4 o_FragColor;
-
+layout(location = 1) out vec4 c_FragColor;
 void main() {
     o_FragColor = texture(u_ColorTexture, v_ColorTexCoord);
 //    o_FragColor = vec4(1.0,1.0,0.0,1.0);

@@ -31,33 +31,16 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IM
     var a_ColorTexCoord = -1
     override var matrix = FloatArray(4 * 4)
 
-//    private val position = 0.06f
-//    private val vertexCoords = floatArrayOf(
-//        -position, 0.0f, -position,
-//        +position, 0.0f, -position,
-//        +position, 0.0f, +position,
-//        -position, 0.0f, -position,
-//        +position, 0.0f, +position,
-//        -position, 0.0f, +position
-//    )
-//    private val textureCoord = floatArrayOf(
-//        0.0f, 1.0f,
-//        1.0f, 1.0f,
-//        1.0f, 0.0f,
-//        0.0f, 1.0f,
-//        1.0f, 0.0f,
-//        0.0f, 0.0f
-//    )
     /**
      * 顶点坐标
      */
-    private val threshold = 0.6f
+    private val threshold = 0.3f
 
     private val vertexCoords = floatArrayOf(
-        -threshold, -threshold
-        +threshold, -threshold
-        -threshold, +threshold
-        +threshold, +threshold
+        -threshold, -threshold,
+        +threshold, -threshold,
+        -threshold, +threshold,
+        +threshold, +threshold,
     )
 
     /**
@@ -139,7 +122,7 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IM
         GLES30.glDepthMask(false)
 
         // 开启背面剔除，默认的逆时针绘制为正面，开启后只绘制正面节省性能
-        GLES30.glEnable(GLES30.GL_CULL_FACE)
+        GLES30.glDisable(GLES30.GL_CULL_FACE)
         GLES30.glCullFace(GLES30.GL_BACK)
 
         // 开启混色,混色在glDarwArrays之前不能关闭，否则不生效

@@ -105,8 +105,8 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                         anchor.pose.toMatrix(pose ,0)
                         bitmapRenderer.upDateMatrix(pose,viewMatrix,projectMatrix)
                         bitmapRenderer.onDrawFrame()
+                        Log.e(TAG,"bitmapRenderer.onDrawFrame():${hitResult.distance}")
                     }
-                    Log.w(TAG,"hitResult.distance:${hitResult.distance}")
                 }
             }
 
