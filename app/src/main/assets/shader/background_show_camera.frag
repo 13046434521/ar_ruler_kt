@@ -22,7 +22,7 @@ uniform samplerExternalOES u_CameraColorTexture;
 in vec2 v_CameraTexCoord;
 
 layout(location = 0) out vec4 o_FragColor;
-layout(location = 1) out vec4 jtl_FragColor;
+//layout(location = 1) out vec4 jtl_FragColor;
 void main() {
     o_FragColor = texture(u_CameraColorTexture, v_CameraTexCoord);
 //    o_FragColor = vec4(1f,0f,0f,1f);

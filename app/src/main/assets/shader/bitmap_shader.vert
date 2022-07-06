@@ -21,6 +21,6 @@ uniform mat4 u_MvpMatrix;
 out vec2 v_ColorTexCoord;
 
 void main() {
-  gl_Position = a_Position * u_MvpMatrix;
+  gl_Position =  u_MvpMatrix * a_Position;
   v_ColorTexCoord = a_ColorTexCoord;
 }

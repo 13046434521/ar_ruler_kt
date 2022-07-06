@@ -88,7 +88,6 @@ class BackgroundRenderer(context : Context) : BaseRenderer(context) {
 //        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,vbo[0])
 //        GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER,4 * vertexCoords.size,vertexBuffer,GLES30.GL_STATIC_DRAW)
 //        GLES30.glEnableVertexAttribArray(a_Position)
-//        GLES30.glVertexAttribPointer(a_Position, 2, GLES30.GL_FLOAT, false, 0, vertexBuffer)
         // 绑定ibo
         val ibo = IntArray(1)
         GLES30.glGenBuffers(1,ibo,0)

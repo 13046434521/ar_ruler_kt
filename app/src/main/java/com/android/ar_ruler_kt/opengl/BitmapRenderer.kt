@@ -19,8 +19,8 @@ import java.nio.FloatBuffer
 class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IMatrix{
     override var fragmentPath: String = "shader/bitmap_shader.frag"
     override var vertexPath: String = "shader/bitmap_shader.vert"
-//    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("test.webp")) }
-    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("pointCircle.png")) }
+    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("test.webp")) }
+//    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("pointCircle.png")) }
     init {
         textureTarget =GLES30.GL_TEXTURE_2D
     }
@@ -31,20 +31,33 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IM
     var a_ColorTexCoord = -1
     override var matrix = FloatArray(4 * 4)
 
+//    private val position = 0.06f
+//    private val vertexCoords = floatArrayOf(
+//        -position, 0.0f, -position,
+//        +position, 0.0f, -position,
+//        +position, 0.0f, +position,
+//        -position, 0.0f, -position,
+//        +position, 0.0f, +position,
+//        -position, 0.0f, +position
+//    )
+//    private val textureCoord = floatArrayOf(
+//        0.0f, 1.0f,
+//        1.0f, 1.0f,
+//        1.0f, 0.0f,
+//        0.0f, 1.0f,
+//        1.0f, 0.0f,
+//        0.0f, 0.0f
+//    )
     /**
      * 顶点坐标
      */
     private val threshold = 0.6f
+
     private val vertexCoords = floatArrayOf(
-        -threshold, -threshold,
-        +threshold, -threshold,
-        -threshold, +threshold,
-        +threshold, +threshold,
-    )
-
-
-    private val index = floatArrayOf(
-
+        -threshold, -threshold
+        +threshold, -threshold
+        -threshold, +threshold
+        +threshold, +threshold
     )
 
     /**
@@ -105,10 +118,10 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IM
         this.height = height
         if (width > height) {
             val x = width / (height.toFloat() / bitmap.height * bitmap.width)
-            Matrix.orthoM(matrix, 0, -x, x, -1f, 1f, -1f, 1f)
+            Matrix.orthoM(matrix, 0, -x, x, -1f, 1f, -1f, 100f)
         } else {
             val y = height / (width.toFloat() / bitmap.width * bitmap.height)
-            Matrix.orthoM(matrix, 0, -1f, 1f, -y, y, -1f, 1f)
+            Matrix.orthoM(matrix, 0, -1f, 1f, -y, y, -1f, 100f)
         }
     }
 
