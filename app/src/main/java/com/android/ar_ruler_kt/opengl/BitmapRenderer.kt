@@ -19,8 +19,8 @@ import java.nio.FloatBuffer
 class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IMatrix{
     override var fragmentPath: String = "shader/bitmap_shader.frag"
     override var vertexPath: String = "shader/bitmap_shader.vert"
-    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("test.webp")) }
-//    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("pointCircle.png")) }
+//    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("test.webp")) }
+    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("pointCircle.png")) }
     init {
         textureTarget =GLES30.GL_TEXTURE_2D
     }
@@ -33,14 +33,15 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IM
 
     /**
      * 顶点坐标
+     * x,y,z opengl是右手笛卡尔坐标系
      */
-    private val threshold = 0.3f
+    private val threshold = 0.05f
 
     private val vertexCoords = floatArrayOf(
-        -threshold, -threshold,
-        +threshold, -threshold,
-        -threshold, +threshold,
-        +threshold, +threshold,
+        -threshold, 0f,+threshold,
+        +threshold, 0f,+threshold,
+        -threshold, 0f,-threshold,
+        +threshold, 0f,-threshold,
     )
 
     /**
@@ -116,7 +117,7 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IM
         GLES30.glUniformMatrix4fv(u_MvpMatrix, 1, false, matrix, 0)
         GLES30.glEnableVertexAttribArray(a_Position)
         GLES30.glEnableVertexAttribArray(a_ColorTexCoord)
-        GLES30.glVertexAttribPointer(a_Position, 2, GLES30.GL_FLOAT, false, 0, vertexBuffer)
+        GLES30.glVertexAttribPointer(a_Position, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer)
         GLES30.glVertexAttribPointer(a_ColorTexCoord, 2, GLES30.GL_FLOAT, false, 0, textureBuffer)
 
         GLES30.glDepthMask(false)

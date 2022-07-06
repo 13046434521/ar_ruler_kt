@@ -97,7 +97,9 @@ class BackgroundSurface: GLSurface ,SessionImpl{
 
                 if (trackable is Plane ) Log.w(TAG,"trackable is Plane:${trackable.type.name}")
 
-                if ((trackable is Plane ) && (trackable.isPoseInPolygon(hitResult.hitPose))){
+//                if ((trackable is Plane ) && (trackable.isPoseInPolygon(hitResult.hitPose))){
+
+                if ((trackable is Plane ) or (trackable is Point)){
                     val anchor = hitResult.createAnchor()
                     if (anchor.trackingState == TrackingState.TRACKING){
                         // 获取点的位置
