@@ -27,16 +27,17 @@ import com.android.ar_ruler_kt.helper.ShaderHelper
         fragmentSource = ShaderHelper.readRawTextFileFromAssets(context,fragmentPath)
         GLES30.glShaderSource(vertexShader,vertexSource)
         GLES30.glShaderSource(fragShader,fragmentSource)
-
+        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         GLES30.glCompileShader(vertexShader)
+        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         GLES30.glCompileShader(fragShader)
-
+        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         GLES30.glAttachShader(program,vertexShader)
         GLES30.glAttachShader(program,fragShader)
-
+        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         GLES30.glLinkProgram(program)
+        GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         GLES30.glUseProgram(program)
-
         GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         initShaderParameter()
 
@@ -44,7 +45,7 @@ import com.android.ar_ruler_kt.helper.ShaderHelper
         GLES30.glDetachShader(program,fragShader)
         GLES30.glDeleteShader(vertexShader)
         GLES30.glDeleteShader(fragShader)
-
+        GLES30.glUseProgram(0)
         GLError.maybeThrowGLException("initProgram", "initProgram：$program")
     }
 

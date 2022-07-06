@@ -16,7 +16,7 @@ import java.nio.FloatBuffer
  * @date：2022/6/30 22:28
  * @detail：Bitmap 渲染
  */
-class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IMatrix{
+class BitmapRenderer(context: Context) : BaseRenderer(context) ,IMatrix{
     override var fragmentPath: String = "shader/bitmap_shader.frag"
     override var vertexPath: String = "shader/bitmap_shader.vert"
 //    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("test.webp")) }
@@ -79,12 +79,6 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IBaseRenderer,IM
         GLError.maybeThrowGLException("initShaderParameter", "initShaderParameter：$program")
 
         Log.w(TAG,"$TAG,  a_Position:$a_Position    a_ColorTexCoord:$a_ColorTexCoord    u_ColorTexture:$u_ColorTexture")
-    }
-
-    override fun upDateMatrix(pose: FloatArray, viewMatrix: FloatArray, projectMatrix: FloatArray) {
-        Matrix.setIdentityM(matrix,0)
-        Matrix.multiplyMM(matrix,0,viewMatrix,0,pose,0)
-        Matrix.multiplyMM(matrix,0,projectMatrix,0,matrix,0)
     }
 
     override fun onSurfaceCreated() {

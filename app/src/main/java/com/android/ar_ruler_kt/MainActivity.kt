@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity() {
         val motionEvent = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, mPoint.x / 2f, mPoint.y / 2f, 0);
         session = SessionHelper.session
         backgroundSurface.session = session
-        backgroundSurface.backgroundRenderer
         backgroundSurface.motionEvent = motionEvent
     }
 

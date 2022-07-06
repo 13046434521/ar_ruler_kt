@@ -18,6 +18,7 @@ import javax.microedition.khronos.opengles.GL10
 class BackgroundSurface: GLSurface ,SessionImpl{
     lateinit var backgroundRenderer:BackgroundRenderer
     lateinit var bitmapRenderer: BitmapRenderer
+    lateinit var pointRenderer: PointRenderer
     var viewMatrix = FloatArray(16)
     var projectMatrix = FloatArray(16)
     var motionEvent:MotionEvent? = null
@@ -35,7 +36,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
     private fun initialize(context: Context){
         backgroundRenderer = BackgroundRenderer(context)
         bitmapRenderer= BitmapRenderer(context)
-
+        pointRenderer = PointRenderer(context)
         // 设置为单位矩阵
         Matrix.setIdentityM(viewMatrix,0)
         Matrix.setIdentityM(projectMatrix,0)
@@ -45,6 +46,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
         super.onSurfaceCreated(gl, config)
         backgroundRenderer.onSurfaceCreated()
         bitmapRenderer.onSurfaceCreated()
+        pointRenderer.onSurfaceCreated()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -52,6 +54,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
         displayRotationHelper.onSurfaceChanged(width, height)
         backgroundRenderer.onSurfaceChanged(width,height)
         bitmapRenderer.onSurfaceChanged(width,height)
+        pointRenderer.onSurfaceChanged(width,height)
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -74,7 +77,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
             }
 
             backgroundRenderer.onDrawFrame()
-
+            pointRenderer.onDrawFrame()
             val tt = System.currentTimeMillis()
             val camera = frame.camera
 
