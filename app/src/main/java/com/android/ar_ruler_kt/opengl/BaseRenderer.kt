@@ -3,6 +3,7 @@ package com.android.ar_ruler_kt.opengl
 import android.content.Context
 import android.opengl.GLES11Ext
 import android.opengl.GLES30
+import android.util.Log
 import com.android.ar_ruler_kt.helper.ShaderHelper
 
 /**
@@ -31,6 +32,7 @@ import com.android.ar_ruler_kt.helper.ShaderHelper
         GLES30.glCompileShader(vertexShader)
         GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         GLES30.glCompileShader(fragShader)
+        Log.e(TAG,"${this.javaClass.simpleName} vertShader：${GLES30.glGetShaderInfoLog(vertexShader)} fragShader：${GLES30.glGetShaderInfoLog(fragShader)}")
         GLError.maybeThrowGLException("initProgram", "initProgram：$program")
         GLES30.glAttachShader(program,vertexShader)
         GLES30.glAttachShader(program,fragShader)
