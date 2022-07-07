@@ -193,4 +193,19 @@ class BackgroundSurface: GLSurface ,SessionImpl{
         detectPointOrPlane=false
         iViewInterface?.detectFailed()
     }
+
+    private fun drawLine(list:ArrayList<Anchor>,view:FloatArray,project:FloatArray){
+        for (index in 0..list.size step 2){
+            val point = floatArrayOf(
+                list[index].pose.tx(),
+                list[index].pose.ty(),
+                list[index].pose.tz(),
+                list[index+1].pose.tx(),
+                list[index+1].pose.ty(),
+                list[index+1].pose.tz(),
+            )
+            lineRenderer.vertexBuffer.put(point).position(0)
+            lineRenderer.upDateMatrix()
+        }
+    }
 }

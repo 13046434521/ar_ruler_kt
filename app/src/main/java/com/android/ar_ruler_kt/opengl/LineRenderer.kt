@@ -13,10 +13,12 @@ import java.util.*
  * @date：2022/7/7 17:52
  * @detail：
  */
-class LineRenderer(context:Context): BaseRenderer(context) {
+class LineRenderer(context:Context): BaseRenderer(context),IMatrix {
     override var vertexPath: String = "shader/dottedline_shader.vert"
     override var fragmentPath: String = "shader/dottedline_shader.frag"
+    override var matrix = FloatArray(16)
     var a_Position = -1
+    var u_Point = -1
     val vertex = floatArrayOf(
         -0.5f,-1f,
         0.5f,1f
@@ -34,6 +36,7 @@ class LineRenderer(context:Context): BaseRenderer(context) {
 
     override fun initShaderParameter() {
         a_Position = GLES30.glGetAttribLocation(program,"a_Position")
+        u_Point = GLES30.glGetUniformLocation(program,"u_Point")
         GLError.maybeThrowGLException("LineRender", "initShaderParameter")
     }
 
@@ -63,11 +66,15 @@ class LineRenderer(context:Context): BaseRenderer(context) {
         GLES30.glEnableVertexAttribArray(a_Position)
 
         GLES30.glVertexAttribPointer(a_Position,2,GLES30.GL_FLOAT,false,0,vertexBuffer)
+        GLES30.glUniform1i(u_Point, 0)
         GLES30.glDrawArrays(GLES30.GL_LINES,0,2)
+        GLES30.glUniform1i(u_Point, 1)
         GLES30.glDrawArrays(GLES30.GL_POINTS,0,2)
         GLES30.glLineWidth(2f)
         GLES30.glDisableVertexAttribArray(a_Position)
         GLES30.glUseProgram(0)
         GLError.maybeThrowGLException("LineRender", "onDrawFrame")
     }
+
+
 }
