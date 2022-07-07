@@ -1,5 +1,7 @@
-#version 120
+#version 300 es
+
+layout(location = 0) in vec4 a_Position;
 
 void main() {
-    gl_Position = vec4(vec3(0.0), 1.0);
+    gl_Position = a_Position;
 }

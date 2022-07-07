@@ -21,6 +21,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
     lateinit var backgroundRenderer:BackgroundRenderer
     lateinit var bitmapRenderer: BitmapRenderer
     lateinit var pointRenderer: PointRenderer
+    lateinit var lineRenderer: LineRenderer
     var viewMatrix = FloatArray(16)
     var projectMatrix = FloatArray(16)
     var motionEvent:MotionEvent? = null
@@ -41,6 +42,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
         backgroundRenderer = BackgroundRenderer(context)
         bitmapRenderer= BitmapRenderer(context)
         pointRenderer = PointRenderer(context)
+        lineRenderer = LineRenderer(context)
         // 设置为单位矩阵
         Matrix.setIdentityM(viewMatrix,0)
         Matrix.setIdentityM(projectMatrix,0)
@@ -51,6 +53,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
         backgroundRenderer.onSurfaceCreated()
         bitmapRenderer.onSurfaceCreated()
         pointRenderer.onSurfaceCreated()
+        lineRenderer.onSurfaceCreated()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
