@@ -80,11 +80,12 @@ class BackgroundSurface: GLSurface ,SessionImpl{
             }
 
             if (frame.timestamp == 0L) {
-               detectFailed()
+                detectFailed()
                 return
             }
 
             backgroundRenderer.onDrawFrame()
+            lineRenderer.onDrawFrame()
             val tt = System.currentTimeMillis()
             val camera = frame.camera
 
