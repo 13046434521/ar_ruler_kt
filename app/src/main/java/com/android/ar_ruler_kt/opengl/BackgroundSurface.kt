@@ -5,8 +5,10 @@ import android.opengl.Matrix
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
+import com.android.ar_ruler_kt.IViewInterface
 import com.android.ar_ruler_kt.helper.DisplayRotationHelper
 import com.google.ar.core.*
+import java.util.concurrent.ConcurrentLinkedQueue
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -22,11 +24,13 @@ class BackgroundSurface: GLSurface ,SessionImpl{
     var viewMatrix = FloatArray(16)
     var projectMatrix = FloatArray(16)
     var motionEvent:MotionEvent? = null
-
-    var anchorList = ArrayList<Anchor>(10)
-
+    var iViewInterface:IViewInterface? = null
+    private val anchorQueue:ConcurrentLinkedQueue<MotionEvent> by lazy {ConcurrentLinkedQueue<MotionEvent>() }
+    private val limitsSize = 2 // 点的上限个数
+    private val anchorList = ArrayList<Anchor>(limitsSize)
     private val displayRotationHelper by lazy { DisplayRotationHelper(context) }
     override var session : Session? = null
+    var detectPointOrPlane = false
 
     constructor(context: Context) : super(context,null)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs){
@@ -73,15 +77,16 @@ class BackgroundSurface: GLSurface ,SessionImpl{
             }
 
             if (frame.timestamp == 0L) {
+               detectFailed()
                 return
             }
 
             backgroundRenderer.onDrawFrame()
-            pointRenderer.onDrawFrame()
             val tt = System.currentTimeMillis()
             val camera = frame.camera
 
             if (camera.trackingState!=TrackingState.TRACKING){
+               detectFailed()
                 Log.e(TAG,"It's error  because camera trackingState is ${camera.trackingState.name}")
                 return
             }
@@ -108,14 +113,37 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                 if ((trackable is Plane ) or (trackable is Point) or (trackable is DepthPoint )){
                     val anchor = hitResult.createAnchor()
                     if (anchor.trackingState == TrackingState.TRACKING){
+                        detectSuccess()
                         // 获取点的位置
                         val pose = FloatArray(16)
                         anchor.pose.toMatrix(pose ,0)
                         bitmapRenderer.upDateMatrix(pose,viewMatrix,projectMatrix)
                         bitmapRenderer.onDrawFrame()
+
+                        // 填加锚点
+                        anchorQueue.poll()?.run {
+                            anchorList.takeIf {anchorList.size==limitsSize }?.apply {
+                                anchorList.first().detach()
+                                anchorList.removeFirst()
+                            }
+                            anchorList.add(anchor)
+                        }
                         Log.e(TAG,"bitmapRenderer.onDrawFrame():${hitResult.distance}")
+                    }else{
+                       detectFailed()
                     }
                 }
+            }else{
+               detectFailed()
+                return
+            }
+
+
+            for (anchor in anchorList){
+                val pose = FloatArray(16)
+                anchor.pose.toMatrix(pose ,0)
+                pointRenderer.upDateMatrix(pose,viewMatrix,projectMatrix)
+                pointRenderer.onDrawFrame()
             }
 
             Log.w(TAG,"耗时：${System.currentTimeMillis()-tt}")
@@ -134,5 +162,31 @@ class BackgroundSurface: GLSurface ,SessionImpl{
             else -> "Other"
         }
         Log.e(TAG,"trackable is $msg")
+    }
+
+    fun add(){
+        if (detectPointOrPlane){
+            anchorQueue.clear()
+            anchorQueue.add(motionEvent)
+            Log.w(TAG,"add: ${anchorQueue.size}")
+        }
+    }
+
+    fun delete(){
+        if (detectPointOrPlane && anchorList.isNotEmpty()){
+            anchorList.last().detach()
+            anchorList.removeLast()
+            Log.w(TAG,"delete: ${anchorList.size}")
+        }
+    }
+    
+    private fun detectSuccess(){
+        detectPointOrPlane=true
+        iViewInterface?.detectSuccess()
+    }
+
+    private fun detectFailed(){
+        detectPointOrPlane=false
+        iViewInterface?.detectFailed()
     }
 }

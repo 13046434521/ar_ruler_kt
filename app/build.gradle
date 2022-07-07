@@ -47,5 +47,5 @@ dependencies {
     // https://github.com/javagl/Obj
     implementation 'de.javagl:obj:0.2.1'
 
-    implementation 'androidx.lifecycle:lifecycle-common-java8:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.3.1'
 }
