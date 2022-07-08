@@ -1,5 +1,6 @@
 package com.android.ar_ruler_kt
 
+import android.graphics.Canvas
 import android.graphics.Point
 import android.os.Bundle
 import android.util.Log

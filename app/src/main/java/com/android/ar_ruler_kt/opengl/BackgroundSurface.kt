@@ -1,6 +1,7 @@
 package com.android.ar_ruler_kt.opengl
 
 import android.content.Context
+import android.graphics.Canvas
 import android.opengl.Matrix
 import android.util.AttributeSet
 import android.util.Log
@@ -28,7 +29,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
     var motionEvent:MotionEvent? = null
     var iViewInterface:IViewInterface? = null
     private val anchorQueue:ConcurrentLinkedQueue<MotionEvent> by lazy {ConcurrentLinkedQueue<MotionEvent>() }
-    private val limitsSize = 2 // 点的上限个数
+    private val limitsSize = 10 // 点的上限个数
     private val anchorList = ArrayList<Anchor>(limitsSize)
     private val displayRotationHelper by lazy { DisplayRotationHelper(context) }
     override var session : Session? = null
@@ -109,11 +110,6 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                 val hitResult = hitResults.last()
                 trackable(hitResult.trackable)
                 val trackable = hitResult.trackable
-                if (trackable is Point ) Log.w(TAG,"trackable is Point:${trackable.orientationMode.name}")
-
-                if (trackable is Plane ) Log.w(TAG,"trackable is Plane:${trackable.type.name}")
-
-//                if ((trackable is Plane ) && (trackable.isPoseInPolygon(hitResult.hitPose))){
 
                 if ((trackable is Plane ) or (trackable is Point) or (trackable is DepthPoint )){
                     var anchor : Anchor? = null
@@ -132,13 +128,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                         bitmapRenderer.onDrawFrame()
 
                         // 填加锚点
-                        anchorQueue.poll()?.run {
-                            anchorList.takeIf {anchorList.size==limitsSize }?.apply {
-                                anchorList.first().detach()
-                                anchorList.removeFirst()
-                            }
-                            anchorList.add(anchor)
-                        }
+                        addAncorPoint(anchor)
                         Log.e(TAG,"bitmapRenderer.onDrawFrame():${hitResult.distance}")
                     }else{
                        detectFailed()
@@ -146,7 +136,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
 
                     // 暂时在此处渲染
                     drawPoint()
-                    drawLine(anchorList,viewMatrix,projectMatrix)
+                    drawLine(anchor,anchorList,viewMatrix,projectMatrix)
                 }
             }else{
                 detectFailed()
@@ -197,7 +187,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
         iViewInterface?.detectFailed()
     }
 
-    private fun drawLine(list:ArrayList<Anchor>,view:FloatArray,project:FloatArray){
+    private fun drawLine(currentAnchor: Anchor?,list:ArrayList<Anchor>,view:FloatArray,project:FloatArray){
         val size = list.size / 2
         for (index in 0 until size){
             val point = floatArrayOf(
@@ -208,6 +198,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                 list[index*2+1].pose.ty(),
                 list[index*2+1].pose.tz(),
             )
+            // 两个点效果一样。所以注掉
             val pose1 = list[index*2].pose.translation
             val pose2 = list[index*2+1].pose.translation
             val point1 = floatArrayOf(
@@ -215,9 +206,27 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                 pose2[0],pose2[1],pose2[2],
             )
             Log.w(TAG,"点1：${point.contentToString()} \n点2：${point1.contentToString()}")
-            lineRenderer.vertexBuffer.put(point1).position(0)
+            lineRenderer.vertexBuffer.put(point).position(0)
             lineRenderer.upDateMatrix(view,project)
             lineRenderer.onDrawFrame()
+        }
+
+        // 当前锚点不为空时，进行渲染
+        currentAnchor?.run {
+            val isAnchor = list.isNotEmpty() && list.size % 2 != 0
+            if (isAnchor){
+                val anchor = list.last()
+                val pose1 = anchor.pose
+                val pose2 = this.pose
+                var data = floatArrayOf(
+                    pose1.tx(),pose1.ty(),pose1.tz(),
+                    pose2.tx(),pose2.ty(),pose2.tz()
+                )
+
+                lineRenderer.vertexBuffer.put(data).position(0)
+                lineRenderer.upDateMatrix(view,project)
+                lineRenderer.onDrawFrame()
+            }
         }
     }
 
@@ -228,5 +237,22 @@ class BackgroundSurface: GLSurface ,SessionImpl{
             pointRenderer.upDateMatrix(pose,viewMatrix,projectMatrix)
             pointRenderer.onDrawFrame()
         }
+    }
+
+    fun  addAncorPoint(anchor: Anchor){
+        anchorQueue.poll()?.run {
+            anchorList.takeIf {anchorList.size==limitsSize }?.apply {
+                anchorList.first().detach()
+                anchorList.removeFirst()
+                anchorList.first().detach()
+                anchorList.removeFirst()
+            }
+            anchorList.add(anchor)
+        }
+    }
+
+    fun drawLengthBitmap(){
+        val canvas = Canvas()
+
     }
 }
