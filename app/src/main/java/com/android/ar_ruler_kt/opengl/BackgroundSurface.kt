@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import com.android.ar_ruler_kt.IViewInterface
 import com.android.ar_ruler_kt.helper.DisplayRotationHelper
 import com.google.ar.core.*
+import java.lang.Exception
 import java.util.concurrent.ConcurrentLinkedQueue
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -115,8 +116,14 @@ class BackgroundSurface: GLSurface ,SessionImpl{
 //                if ((trackable is Plane ) && (trackable.isPoseInPolygon(hitResult.hitPose))){
 
                 if ((trackable is Plane ) or (trackable is Point) or (trackable is DepthPoint )){
-                    val anchor = hitResult.createAnchor()
-                    if (anchor.trackingState == TrackingState.TRACKING){
+                    var anchor : Anchor? = null
+                    try {
+                        anchor = hitResult.createAnchor()
+                    }catch (e:Exception){
+                        Log.e(TAG,"Ececption:$e")
+                    }
+
+                    if (anchor?.trackingState == TrackingState.TRACKING){
                         detectSuccess()
                         // 获取点的位置
                         val pose = FloatArray(16)
