@@ -2,7 +2,7 @@
 precision mediump float;
 
 layout(location=0) out vec4 o_FragColor;
-uniform bool u_Point;
+uniform bool u_Point;// 非0即true
 void main() {
     if(u_Point && length(gl_PointCoord - vec2(0.5))>0.5){
         discard;

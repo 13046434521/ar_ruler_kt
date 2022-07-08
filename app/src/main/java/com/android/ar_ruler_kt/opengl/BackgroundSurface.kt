@@ -85,7 +85,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
             }
 
             backgroundRenderer.onDrawFrame()
-            lineRenderer.onDrawFrame()
+
             val tt = System.currentTimeMillis()
             val camera = frame.camera
 
@@ -136,18 +136,14 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                     }else{
                        detectFailed()
                     }
+
+                    // 暂时在此处渲染
+                    drawPoint()
+                    drawLine(anchorList,viewMatrix,projectMatrix)
                 }
             }else{
-               detectFailed()
+                detectFailed()
                 return
-            }
-
-
-            for (anchor in anchorList){
-                val pose = FloatArray(16)
-                anchor.pose.toMatrix(pose ,0)
-                pointRenderer.upDateMatrix(pose,viewMatrix,projectMatrix)
-                pointRenderer.onDrawFrame()
             }
 
             Log.w(TAG,"耗时：${System.currentTimeMillis()-tt}")
@@ -195,17 +191,35 @@ class BackgroundSurface: GLSurface ,SessionImpl{
     }
 
     private fun drawLine(list:ArrayList<Anchor>,view:FloatArray,project:FloatArray){
-        for (index in 0..list.size step 2){
+        val size = list.size / 2
+        for (index in 0 until size){
             val point = floatArrayOf(
-                list[index].pose.tx(),
-                list[index].pose.ty(),
-                list[index].pose.tz(),
-                list[index+1].pose.tx(),
-                list[index+1].pose.ty(),
-                list[index+1].pose.tz(),
+                list[index*2].pose.tx(),
+                list[index*2].pose.ty(),
+                list[index*2].pose.tz(),
+                list[index*2+1].pose.tx(),
+                list[index*2+1].pose.ty(),
+                list[index*2+1].pose.tz(),
             )
-            lineRenderer.vertexBuffer.put(point).position(0)
-            lineRenderer.upDateMatrix()
+            val pose1 = list[index*2].pose.translation
+            val pose2 = list[index*2+1].pose.translation
+            val point1 = floatArrayOf(
+                pose1[0],pose1[1],pose1[2],
+                pose2[0],pose2[1],pose2[2],
+            )
+            Log.w(TAG,"点1：${point.contentToString()} \n点2：${point1.contentToString()}")
+            lineRenderer.vertexBuffer.put(point1).position(0)
+            lineRenderer.upDateMatrix(view,project)
+            lineRenderer.onDrawFrame()
+        }
+    }
+
+    fun drawPoint(){
+        for (anchor in anchorList){
+            val pose = FloatArray(16)
+            anchor.pose.toMatrix(pose ,0)
+            pointRenderer.upDateMatrix(pose,viewMatrix,projectMatrix)
+            pointRenderer.onDrawFrame()
         }
     }
 }
