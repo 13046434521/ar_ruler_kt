@@ -1,5 +1,6 @@
 package com.android.ar_ruler_kt
 
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Point
 import android.os.Bundle
@@ -12,9 +13,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.ar_ruler_kt.helper.FullScreenHelper
 import com.android.ar_ruler_kt.helper.SessionHelper
 import com.android.ar_ruler_kt.opengl.BackgroundSurface
+import com.android.ar_ruler_kt.opengl.IBitmapInterview
 import com.google.ar.core.Session
 
-class MainActivity : AppCompatActivity(),View.OnClickListener,IViewInterface {
+class MainActivity : AppCompatActivity(),View.OnClickListener,IViewInterface,IBitmapInterview {
     val TAG = this.javaClass.simpleName
     var session:Session? = null
     val backgroundSurface :BackgroundSurface by lazy{findViewById(R.id.gl_main_background)}

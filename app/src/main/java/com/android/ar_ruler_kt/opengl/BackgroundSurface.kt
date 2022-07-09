@@ -85,7 +85,6 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                 detectFailed()
                 return
             }
-
             backgroundRenderer.onDrawFrame()
 
             val tt = System.currentTimeMillis()
@@ -253,6 +252,5 @@ class BackgroundSurface: GLSurface ,SessionImpl{
 
     fun drawLengthBitmap(){
         val canvas = Canvas()
-
     }
 }
