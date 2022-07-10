@@ -120,7 +120,7 @@ class BackgroundSurface: GLSurface ,SessionImpl {
                     try {
                         anchor = hitResult.createAnchor()
                     }catch (e:Exception){
-                        Log.e(TAG,"Ececption:$e")
+                        Log.e(TAG,"Exception:$e")
                     }
 
                     if (anchor?.trackingState == TrackingState.TRACKING){

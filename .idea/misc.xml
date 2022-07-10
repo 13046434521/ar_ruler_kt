@@ -3,6 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/HJIMI/AndroidProjectDemo/ar_ruler_kt/app/src/main/res/drawable/ruler_prompt_bg.xml" value="0.271" />
+        <entry key="..\:/HJIMI/AndroidProjectDemo/ar_ruler_kt/app/src/main/res/layout/activity_main.xml" value="0.26614583333333336" />
         <entry key="..\:/HJIMI/AndroidProjectDemo/ar_ruler_kt/hello_ar_kotlin/src/main/res/layout/activity_main.xml" value="0.2557291666666667" />
       </map>
     </option>
