@@ -64,9 +64,9 @@ interface IBitmapInterview {
         return bitmap
     }
 
-    fun drawBitmap(width:Int,height:Int,content:String){
+    fun drawBitmap(width:Int,height:Int,content:String):Bitmap{
         val bitmap =Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888)
-        drawBitmap(bitmap,content)
+        return drawBitmap(bitmap,content)
     }
 }
 

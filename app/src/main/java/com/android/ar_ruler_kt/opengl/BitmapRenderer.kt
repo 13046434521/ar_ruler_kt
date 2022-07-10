@@ -35,7 +35,7 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IMatrix{
      * 顶点坐标
      * x,y,z opengl是右手笛卡尔坐标系
      */
-    private val threshold = 0.05f
+    private val threshold = 0.1f
 
     private val vertexCoords = floatArrayOf(
         -threshold, 0f,+threshold,
@@ -62,6 +62,7 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IMatrix{
 
         return@lazy vertexCoord
     }
+
     val textureBuffer: FloatBuffer by lazy {
         val buffer: ByteBuffer = ByteBuffer.allocateDirect(textureCoord.size * 4)
         buffer.order(ByteOrder.nativeOrder())

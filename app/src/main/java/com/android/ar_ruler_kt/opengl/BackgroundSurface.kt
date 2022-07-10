@@ -19,11 +19,12 @@ import javax.microedition.khronos.opengles.GL10
  * @date：2022/6/27 23:32
  * @detail：背景渲染类
  */
-class BackgroundSurface: GLSurface ,SessionImpl{
+class BackgroundSurface: GLSurface ,SessionImpl {
     lateinit var backgroundRenderer:BackgroundRenderer
     lateinit var bitmapRenderer: BitmapRenderer
     lateinit var pointRenderer: PointRenderer
     lateinit var lineRenderer: LineRenderer
+    lateinit var pictureRenderer: PictureRenderer
     var viewMatrix = FloatArray(16)
     var projectMatrix = FloatArray(16)
     var motionEvent:MotionEvent? = null
@@ -45,6 +46,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
         bitmapRenderer= BitmapRenderer(context)
         pointRenderer = PointRenderer(context)
         lineRenderer = LineRenderer(context)
+        pictureRenderer = PictureRenderer(context)
         // 设置为单位矩阵
         Matrix.setIdentityM(viewMatrix,0)
         Matrix.setIdentityM(projectMatrix,0)
@@ -56,6 +58,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
         bitmapRenderer.onSurfaceCreated()
         pointRenderer.onSurfaceCreated()
         lineRenderer.onSurfaceCreated()
+        pictureRenderer.onSurfaceCreated()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -64,6 +67,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
         backgroundRenderer.onSurfaceChanged(width,height)
         bitmapRenderer.onSurfaceChanged(width,height)
         pointRenderer.onSurfaceChanged(width,height)
+        pictureRenderer.onSurfaceChanged(width,height)
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -86,7 +90,7 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                 return
             }
             backgroundRenderer.onDrawFrame()
-
+//            pictureRenderer.onDrawFrame()
             val tt = System.currentTimeMillis()
             val camera = frame.camera
 
@@ -109,8 +113,9 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                 val hitResult = hitResults.last()
                 trackable(hitResult.trackable)
                 val trackable = hitResult.trackable
-
-                if ((trackable is Plane ) or (trackable is Point) or (trackable is DepthPoint )){
+//                (trackable is Plane ) && trackable.isPoseInPolygon(hitResult.hitPose)
+//                (trackable is Plane ) or (trackable is Point) or (trackable is DepthPoint )
+                if ((trackable is Plane ) && trackable.isPoseInPolygon(hitResult.hitPose)){
                     var anchor : Anchor? = null
                     try {
                         anchor = hitResult.createAnchor()
@@ -136,6 +141,9 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                     // 暂时在此处渲染
                     drawPoint()
                     drawLine(anchor,anchorList,viewMatrix,projectMatrix)
+                }
+                else{
+                    detectFailed()
                 }
             }else{
                 detectFailed()
@@ -170,8 +178,16 @@ class BackgroundSurface: GLSurface ,SessionImpl{
 
     fun delete(){
         if (detectPointOrPlane && anchorList.isNotEmpty()){
-            anchorList.last().detach()
-            anchorList.removeLast()
+            if (anchorList.size%2==0){
+                anchorList.last().detach()
+                anchorList.removeLast()
+                anchorList.last().detach()
+                anchorList.removeLast()
+            }else{
+                anchorList.last().detach()
+                anchorList.removeLast()
+            }
+
             Log.w(TAG,"delete: ${anchorList.size}")
         }
     }
@@ -187,28 +203,29 @@ class BackgroundSurface: GLSurface ,SessionImpl{
     }
 
     private fun drawLine(currentAnchor: Anchor?,list:ArrayList<Anchor>,view:FloatArray,project:FloatArray){
-        val size = list.size / 2
-        for (index in 0 until size){
-            val point = floatArrayOf(
-                list[index*2].pose.tx(),
-                list[index*2].pose.ty(),
-                list[index*2].pose.tz(),
-                list[index*2+1].pose.tx(),
-                list[index*2+1].pose.ty(),
-                list[index*2+1].pose.tz(),
-            )
-            // 两个点效果一样。所以注掉
-            val pose1 = list[index*2].pose.translation
-            val pose2 = list[index*2+1].pose.translation
-            val point1 = floatArrayOf(
-                pose1[0],pose1[1],pose1[2],
-                pose2[0],pose2[1],pose2[2],
-            )
-            Log.w(TAG,"点1：${point.contentToString()} \n点2：${point1.contentToString()}")
-            lineRenderer.vertexBuffer.put(point).position(0)
-            lineRenderer.upDateMatrix(view,project)
-            lineRenderer.onDrawFrame()
-        }
+            val size = list.size / 2
+            for (index in 0 until size){
+//                val point = floatArrayOf(
+//                    list[index*2].pose.tx(),
+//                    list[index*2].pose.ty(),
+//                    list[index*2].pose.tz(),
+//                    list[index*2+1].pose.tx(),
+//                    list[index*2+1].pose.ty(),
+//                    list[index*2+1].pose.tz(),
+//                )
+                // 两个点效果一样。所以注掉
+                val pose1 = list[index*2].pose.translation
+                val pose2 = list[index*2+1].pose.translation
+                val point1 = floatArrayOf(
+                    pose1[0],pose1[1],pose1[2],
+                    pose2[0],pose2[1],pose2[2],
+                )
+                lineRenderer.vertexBuffer.put(point1).position(0)
+                lineRenderer.upDateMatrix(view,project)
+                lineRenderer.onDrawFrame()
+
+                drawPicture(list[index*2].pose, list[index*2+1].pose)
+            }
 
         // 当前锚点不为空时，进行渲染
         currentAnchor?.run {
@@ -225,6 +242,8 @@ class BackgroundSurface: GLSurface ,SessionImpl{
                 lineRenderer.vertexBuffer.put(data).position(0)
                 lineRenderer.upDateMatrix(view,project)
                 lineRenderer.onDrawFrame()
+
+                drawPicture(pose1,pose2)
             }
         }
     }
@@ -250,7 +269,28 @@ class BackgroundSurface: GLSurface ,SessionImpl{
         }
     }
 
-    fun drawLengthBitmap(){
-        val canvas = Canvas()
+    fun drawPicture(pose1:Pose,pose2:Pose){
+        // 计算两个点之间的距离
+        val length = pictureRenderer.length(pose1,pose2)
+        val res = String.format("%.2f", length)
+        // 获取将要绘制的bitmap
+//        pictureRenderer.bitmap = pictureRenderer.drawBitmap(200,100,"${res}m")
+        pictureRenderer.setLength2Bitmap("${res}m")
+        // 获取模型矩阵
+        var model = FloatArray(16)
+        pose2.toMatrix(model,0)
+        // 获取应该锚点的位置
+        val position = floatArrayOf(
+            pose2.tx()-pose1.tx(),
+            pose2.ty()-pose1.ty(),
+            pose2.tz()-pose1.tz(),
+        )
+        var newModel = FloatArray(16)
+        Matrix.translateM(newModel,0,model,0, position[0],position[1],position[2])
+
+        // 更新MVP矩阵，进行绘制
+        pictureRenderer.upDateMatrix(newModel,viewMatrix,projectMatrix)
+        pictureRenderer.onDrawFrame()
     }
+
 }

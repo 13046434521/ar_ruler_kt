@@ -16,7 +16,7 @@ import com.android.ar_ruler_kt.opengl.BackgroundSurface
 import com.android.ar_ruler_kt.opengl.IBitmapInterview
 import com.google.ar.core.Session
 
-class MainActivity : AppCompatActivity(),View.OnClickListener,IViewInterface,IBitmapInterview {
+class MainActivity : AppCompatActivity(),View.OnClickListener,IViewInterface{
     val TAG = this.javaClass.simpleName
     var session:Session? = null
     val backgroundSurface :BackgroundSurface by lazy{findViewById(R.id.gl_main_background)}
