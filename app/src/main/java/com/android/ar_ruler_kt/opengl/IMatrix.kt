@@ -20,4 +20,10 @@ interface IMatrix {
         Matrix.setIdentityM(matrix,0)
         Matrix.multiplyMM(matrix,0,projectMatrix,0,viewMatrix,0)
     }
+
+    fun upDateVPMatrix(position:FloatArray = FloatArray(4),viewMatrix:FloatArray = FloatArray(16),projectMatrix:FloatArray = FloatArray(16)){
+        Matrix.setIdentityM(matrix,0)
+        Matrix.multiplyMV(matrix,0,viewMatrix,0,position,0)
+        Matrix.multiplyMM(matrix,0,projectMatrix,0,matrix,0)
+    }
 }

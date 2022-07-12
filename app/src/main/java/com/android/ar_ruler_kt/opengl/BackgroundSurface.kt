@@ -257,7 +257,7 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         }
     }
 
-    fun  addAncorPoint(anchor: Anchor){
+    fun addAncorPoint(anchor: Anchor){
         anchorQueue.poll()?.run {
             anchorList.takeIf {anchorList.size==limitsSize }?.apply {
                 anchorList.first().detach()
@@ -274,23 +274,19 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         val length = pictureRenderer.length(pose1,pose2)
         val res = String.format("%.2f", length)
         // 获取将要绘制的bitmap
-//        pictureRenderer.bitmap = pictureRenderer.drawBitmap(200,100,"${res}m")
+        // pictureRenderer.bitmap = pictureRenderer.drawBitmap(200,100,"${res}m")
         pictureRenderer.setLength2Bitmap("${res}m")
-        // 获取模型矩阵
-        var model = FloatArray(16)
-        pose2.toMatrix(model,0)
+
         // 获取应该锚点的位置
         val position = floatArrayOf(
-            pose2.tx()-pose1.tx(),
-            pose2.ty()-pose1.ty(),
-            pose2.tz()-pose1.tz(),
+            (pose2.tx()+pose1.tx())/2,
+            (pose2.ty()+pose1.ty())/2,
+            (pose2.tz()+pose1.tz())/2,
+            1f,
         )
-        var newModel = FloatArray(16)
-        Matrix.translateM(newModel,0,model,0, position[0],position[1],position[2])
-
+        pictureRenderer.upDataVertex(pose1,pose2,viewMatrix)
         // 更新MVP矩阵，进行绘制
-        pictureRenderer.upDateMatrix(newModel,viewMatrix,projectMatrix)
+        pictureRenderer.upDateVPMatrix(position,viewMatrix,projectMatrix)
         pictureRenderer.onDrawFrame()
     }
-
 }

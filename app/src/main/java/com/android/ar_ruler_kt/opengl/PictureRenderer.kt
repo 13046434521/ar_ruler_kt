@@ -7,6 +7,7 @@ import android.opengl.GLES30
 import android.opengl.GLU
 import android.opengl.GLUtils
 import android.opengl.Matrix
+import com.google.ar.core.Pose
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -89,14 +90,14 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         GLES30.glBindTexture(textureTarget,textureIds[0])
 
         GLES30.glUniform1i(u_ColorTexture,0)
-        Matrix.setIdentityM(matrix,0)
+//        Matrix.setIdentityM(matrix,0)
         GLES30.glUniformMatrix4fv(u_MvpMatrix,1,false,matrix,0)
         GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
         GLES30.glEnableVertexAttribArray(a_Position)
         GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
         GLES30.glEnableVertexAttribArray(a_ColorTexCoord)
         GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
-        GLES30.glEnable(GLES30.GL_CULL_FACE)
+        GLES30.glDisable(GLES30.GL_CULL_FACE)
         GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
         GLES30.glVertexAttribPointer(a_Position,2,GLES30.GL_FLOAT,false,0,vertexBuffer)
         GLES30.glVertexAttribPointer(a_ColorTexCoord,2,GLES30.GL_FLOAT,false,0,textureBuffer)
@@ -113,7 +114,44 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
     }
 
+    // 给bitmap绘制内容
     fun setLength2Bitmap(content:String){
         bitmap = drawBitmap(200,100,content)
+    }
+
+    fun upDataVertex(pose1:Pose,pose2:Pose,viewMatrix:FloatArray) {
+        val pos1_world = pose1.translation
+        val pos2_world = pose2.translation
+
+        // 相机坐标系下的点
+        val pos1 = FloatArray(4)
+        val pos2 = FloatArray(4)
+        Matrix.multiplyMV(pos1, 0, viewMatrix, 0, pos1_world, 0)
+        Matrix.multiplyMV(pos2, 0, viewMatrix, 0, pos2_world, 0)
+
+        //
+        val threshold1 = -0.1 / pos1[2]
+        val threshold2 = -0.1 / pos2[2]
+
+        val newpose1 = floatArrayOf(
+            (threshold1 * pos1[0]).toFloat(),
+            (threshold1 * pos1[1]).toFloat(),
+            -0.1f,
+            1f
+        )
+
+        val newpose2 = floatArrayOf(
+            (threshold2 * pos2[0]).toFloat(),
+            (threshold2 * pos2[1]).toFloat(),
+            -0.1f,
+            1f
+        )
+
+        val centerpose = floatArrayOf(
+            (newpose2[0] + newpose1[0])/2,
+            (newpose2[1] + newpose1[1])/2,
+            -0.1f,
+            1f
+        )
     }
 }

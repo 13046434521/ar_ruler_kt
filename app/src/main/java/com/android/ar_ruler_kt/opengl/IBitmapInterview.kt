@@ -69,5 +69,3 @@ interface IBitmapInterview {
         return drawBitmap(bitmap,content)
     }
 }
-
-
