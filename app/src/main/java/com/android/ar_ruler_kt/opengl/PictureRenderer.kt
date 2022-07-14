@@ -40,12 +40,8 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         +threshold,+threshold,
     )
 
-    val vertexBuffer by lazy {
-        val buffer = ByteBuffer.allocateDirect(vertex.size * Float.SIZE_BYTES).order(ByteOrder.nativeOrder())
-        val tempBuffer = buffer.asFloatBuffer()
-        tempBuffer.put(vertex)
-        tempBuffer.position(0)
-    }
+    var vertexBuffer  = ByteBuffer.allocateDirect(vertex.size * Float.SIZE_BYTES).order(ByteOrder.nativeOrder()).asFloatBuffer()
+
     val texture = floatArrayOf(
         +0.0f,+1.0f,
         +1.0f,+1.0f,
@@ -114,44 +110,84 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
     }
 
-    // 给bitmap绘制内容
+    /**
+     * 给bitmap绘制内容
+     * @param content String
+     */
     fun setLength2Bitmap(content:String){
         bitmap = drawBitmap(200,100,content)
     }
 
+    /**
+     * 设置顶点坐标
+     * @param pose1 Pose
+     * @param pose2 Pose
+     * @param viewMatrix FloatArray
+     */
     fun upDataVertex(pose1:Pose,pose2:Pose,viewMatrix:FloatArray) {
-        val pos1_world = pose1.translation
-        val pos2_world = pose2.translation
+        val pos1_world = floatArrayOf(pose1.tx(),pose1.ty(),pose1.tz(),1f)
+        val pos2_world = floatArrayOf(pose2.tx(),pose2.ty(),pose2.tz(),1f)
 
-        // 相机坐标系下的点
+        // 转为相机坐标系下的两个点
         val pos1 = FloatArray(4)
         val pos2 = FloatArray(4)
         Matrix.multiplyMV(pos1, 0, viewMatrix, 0, pos1_world, 0)
         Matrix.multiplyMV(pos2, 0, viewMatrix, 0, pos2_world, 0)
 
-        //
-        val threshold1 = -0.1 / pos1[2]
-        val threshold2 = -0.1 / pos2[2]
+        // 转为近剪切面上的两个点
+        val newpose1 = FloatArray(4)
+        val newpose2 = FloatArray(4)
+        mappingNear(newpose1,pos1)
+        mappingNear(newpose2,pos2)
 
-        val newpose1 = floatArrayOf(
-            (threshold1 * pos1[0]).toFloat(),
-            (threshold1 * pos1[1]).toFloat(),
-            -0.1f,
-            1f
-        )
-
-        val newpose2 = floatArrayOf(
-            (threshold2 * pos2[0]).toFloat(),
-            (threshold2 * pos2[1]).toFloat(),
-            -0.1f,
-            1f
-        )
-
+        // newpose1，newpose2的中点
         val centerpose = floatArrayOf(
             (newpose2[0] + newpose1[0])/2,
             (newpose2[1] + newpose1[1])/2,
             -0.1f,
-            1f
+            +1.0f
         )
+
+        // 求出这两个点 在 z = -0.1时，在这个平面上的二维向量
+        val vector = FloatArray(2)
+        vector[0] = newpose2[0] - newpose1[0]
+        vector[1] = newpose2[1] - newpose1[1]
+
+        // 垂直向量
+        val vector90 = rotate(vector)
+        // vector进行归一化
+        val normal1 = normal(vector)
+        // 垂直向量归一化
+        val normal2 = normal(vector90)
+
+        val pointA = FloatArray(2)
+        val pointB = FloatArray(2)
+        val pointC = FloatArray(2)
+        val pointD = FloatArray(2)
+
+        pointA[0] = centerpose[0] - normal1[0] - normal2[0]
+        pointA[1] = centerpose[1] - normal1[1] - normal2[1]
+
+        pointB[0] = centerpose[0] + normal1[0] + normal2[0]
+        pointB[1] = centerpose[1] - normal1[1] - normal2[1]
+
+        pointC[0] = centerpose[0] - normal1[0] - normal2[0]
+        pointC[1] = centerpose[1] + normal1[1] + normal2[1]
+
+        pointD[0] = centerpose[0] + normal1[0] + normal2[0]
+        pointD[1] = centerpose[1] + normal1[1] + normal2[1]
+
+
+
+        vertex[0] = pointA[0]
+        vertex[1] = pointA[1]
+        vertex[2] = pointB[0]
+        vertex[3] = pointB[1]
+        vertex[4] = pointC[0]
+        vertex[5] = pointC[1]
+        vertex[6] = pointD[0]
+        vertex[7] = pointD[1]
+
+        vertexBuffer.put(vertex).position(0)
     }
 }

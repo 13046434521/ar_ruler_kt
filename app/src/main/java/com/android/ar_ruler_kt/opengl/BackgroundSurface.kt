@@ -277,16 +277,16 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         // pictureRenderer.bitmap = pictureRenderer.drawBitmap(200,100,"${res}m")
         pictureRenderer.setLength2Bitmap("${res}m")
 
-        // 获取应该锚点的位置
-        val position = floatArrayOf(
-            (pose2.tx()+pose1.tx())/2,
-            (pose2.ty()+pose1.ty())/2,
-            (pose2.tz()+pose1.tz())/2,
-            1f,
-        )
+//        // 获取应该锚点的位置
+//        val position = floatArrayOf(
+//            (pose2.tx()+pose1.tx())/2,
+//            (pose2.ty()+pose1.ty())/2,
+//            (pose2.tz()+pose1.tz())/2,
+//            1f,
+//        )
         pictureRenderer.upDataVertex(pose1,pose2,viewMatrix)
         // 更新MVP矩阵，进行绘制
-        pictureRenderer.upDateVPMatrix(position,viewMatrix,projectMatrix)
+        pictureRenderer.upDatePMatrix(projectMatrix)
         pictureRenderer.onDrawFrame()
     }
 }

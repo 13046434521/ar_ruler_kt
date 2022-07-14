@@ -26,4 +26,9 @@ interface IMatrix {
         Matrix.multiplyMV(matrix,0,viewMatrix,0,position,0)
         Matrix.multiplyMM(matrix,0,projectMatrix,0,matrix,0)
     }
+
+    fun upDatePMatrix(projectMatrix:FloatArray = FloatArray(16)){
+        Matrix.setIdentityM(matrix,0)
+        Matrix.multiplyMM(matrix,0,projectMatrix,0,matrix,0)
+    }
 }
