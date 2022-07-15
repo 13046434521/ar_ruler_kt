@@ -33,12 +33,7 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
 
 
     val threshold = 0.06f
-    val vertex = floatArrayOf(
-        -threshold,-threshold,
-        +threshold,-threshold,
-        -threshold,+threshold,
-        +threshold,+threshold,
-    )
+    val vertex = FloatArray(12)
 
     var vertexBuffer  = ByteBuffer.allocateDirect(vertex.size * Float.SIZE_BYTES).order(ByteOrder.nativeOrder()).asFloatBuffer()
 
@@ -95,7 +90,7 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
         GLES30.glDisable(GLES30.GL_CULL_FACE)
         GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
-        GLES30.glVertexAttribPointer(a_Position,2,GLES30.GL_FLOAT,false,0,vertexBuffer)
+        GLES30.glVertexAttribPointer(a_Position,3,GLES30.GL_FLOAT,false,0,vertexBuffer)
         GLES30.glVertexAttribPointer(a_ColorTexCoord,2,GLES30.GL_FLOAT,false,0,textureBuffer)
         GLUtils.texImage2D(textureTarget,0,bitmap,0)
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP,0,4)
@@ -160,33 +155,40 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         // 垂直向量归一化
         val normal2 = normal(vector90)
 
-        val pointA = FloatArray(2)
-        val pointB = FloatArray(2)
-        val pointC = FloatArray(2)
-        val pointD = FloatArray(2)
-
-        pointA[0] = centerpose[0] - normal1[0] - normal2[0]
-        pointA[1] = centerpose[1] - normal1[1] - normal2[1]
-
-        pointB[0] = centerpose[0] + normal1[0] + normal2[0]
-        pointB[1] = centerpose[1] - normal1[1] - normal2[1]
-
-        pointC[0] = centerpose[0] - normal1[0] - normal2[0]
-        pointC[1] = centerpose[1] + normal1[1] + normal2[1]
-
-        pointD[0] = centerpose[0] + normal1[0] + normal2[0]
-        pointD[1] = centerpose[1] + normal1[1] + normal2[1]
-
-
+        val pointA = FloatArray(3)
+        val pointB = FloatArray(3)
+        val pointC = FloatArray(3)
+        val pointD = FloatArray(3)
+        val th1 = 0.05f
+        val th2 = 0.025f
+        pointA[0] = centerpose[0] - th1 * normal1[0] - th1 * normal2[0]
+        pointA[1] = centerpose[1] - th2 * normal1[1] - th2 * normal2[1]
+        pointA[2] = - 0.1f
+        pointB[0] = centerpose[0] + th1 * normal1[0] - th1 * normal2[0]
+        pointB[1] = centerpose[1] + th2 * normal1[1] - th2 * normal2[1]
+        pointB[2] = - 0.1f
+        pointC[0] = centerpose[0] - th1*normal1[0] + th1*normal2[0]
+        pointC[1] = centerpose[1] - th2*normal1[1] + th2*normal2[1]
+        pointC[2] = - 0.1f
+        pointD[0] = centerpose[0] + th1*normal1[0] + th1*normal2[0]
+        pointD[1] = centerpose[1] + th2*normal1[1] + th2*normal2[1]
+        pointD[2] = -0.1f
 
         vertex[0] = pointA[0]
         vertex[1] = pointA[1]
-        vertex[2] = pointB[0]
-        vertex[3] = pointB[1]
-        vertex[4] = pointC[0]
-        vertex[5] = pointC[1]
-        vertex[6] = pointD[0]
-        vertex[7] = pointD[1]
+        vertex[2] = pointA[2]
+
+        vertex[3] = pointB[0]
+        vertex[4] = pointB[1]
+        vertex[5] = pointB[2]
+
+        vertex[6] = pointC[0]
+        vertex[7] = pointC[1]
+        vertex[8] = pointC[2]
+
+        vertex[9] = pointD[0]
+        vertex[10] = pointD[1]
+        vertex[11] = pointD[2]
 
         vertexBuffer.put(vertex).position(0)
     }
