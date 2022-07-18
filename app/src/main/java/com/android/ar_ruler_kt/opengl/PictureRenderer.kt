@@ -88,7 +88,7 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
         GLES30.glEnableVertexAttribArray(a_ColorTexCoord)
         GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
-        GLES30.glDisable(GLES30.GL_CULL_FACE)
+        GLES30.glEnable(GLES30.GL_CULL_FACE)
         GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
         GLES30.glVertexAttribPointer(a_Position,3,GLES30.GL_FLOAT,false,0,vertexBuffer)
         GLES30.glVertexAttribPointer(a_ColorTexCoord,2,GLES30.GL_FLOAT,false,0,textureBuffer)
@@ -124,55 +124,58 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         val pos2_world = floatArrayOf(pose2.tx(),pose2.ty(),pose2.tz(),1f)
 
         // 转为相机坐标系下的两个点
-        val pos1 = FloatArray(4)
-        val pos2 = FloatArray(4)
-        Matrix.multiplyMV(pos1, 0, viewMatrix, 0, pos1_world, 0)
-        Matrix.multiplyMV(pos2, 0, viewMatrix, 0, pos2_world, 0)
+        val pos1_camera = FloatArray(4)
+        val pos2_camera = FloatArray(4)
+        Matrix.multiplyMV(pos1_camera, 0, viewMatrix, 0, pos1_world, 0)
+        Matrix.multiplyMV(pos2_camera, 0, viewMatrix, 0, pos2_world, 0)
 
         // 转为近剪切面上的两个点
-        val newpose1 = FloatArray(4)
-        val newpose2 = FloatArray(4)
-        mappingNear(newpose1,pos1)
-        mappingNear(newpose2,pos2)
+        var newpose1 = FloatArray(4)
+        var newpose2 = FloatArray(4)
 
+        mappingNear(newpose1,pos1_camera,-0.1f)
+        mappingNear(newpose2,pos2_camera,-0.1f)
+        newpose1 = pos1_camera
+        newpose2 = pos2_camera
         // newpose1，newpose2的中点
         val centerpose = floatArrayOf(
             (newpose2[0] + newpose1[0])/2,
             (newpose2[1] + newpose1[1])/2,
-            -0.1f,
+            (newpose2[2] + newpose1[2])/2,
             +1.0f
         )
 
         // 求出这两个点 在 z = -0.1时，在这个平面上的二维向量
-        val vector = FloatArray(2)
-        vector[0] = newpose2[0] - newpose1[0]
-        vector[1] = newpose2[1] - newpose1[1]
+        val vectorX = FloatArray(2)
+        vectorX[0] = newpose2[0] - newpose1[0]
+        vectorX[1] = newpose2[1] - newpose1[1]
 
-        // 垂直向量
-        val vector90 = rotate(vector)
         // vector进行归一化
-        val normal1 = normal(vector)
-        // 垂直向量归一化
-        val normal2 = normal(vector90)
+        val normalX = normal(vectorX)
+        // 旋转90度，垂直向量
+        val normalY = rotate(normalX)
+
+//        // 垂直向量归一化
+//        val normalY = normal(vectorY)
 
         val pointA = FloatArray(3)
         val pointB = FloatArray(3)
         val pointC = FloatArray(3)
         val pointD = FloatArray(3)
-        val th1 = 0.05f
-        val th2 = 0.025f
-        pointA[0] = centerpose[0] - th1 * normal1[0] - th1 * normal2[0]
-        pointA[1] = centerpose[1] - th2 * normal1[1] - th2 * normal2[1]
-        pointA[2] = - 0.1f
-        pointB[0] = centerpose[0] + th1 * normal1[0] - th1 * normal2[0]
-        pointB[1] = centerpose[1] + th2 * normal1[1] - th2 * normal2[1]
-        pointB[2] = - 0.1f
-        pointC[0] = centerpose[0] - th1*normal1[0] + th1*normal2[0]
-        pointC[1] = centerpose[1] - th2*normal1[1] + th2*normal2[1]
-        pointC[2] = - 0.1f
-        pointD[0] = centerpose[0] + th1*normal1[0] + th1*normal2[0]
-        pointD[1] = centerpose[1] + th2*normal1[1] + th2*normal2[1]
-        pointD[2] = -0.1f
+        val th1 = 0.01f
+        val th2 = 0.005f
+        pointA[0] = centerpose[0] - th1 * normalX[0] - th2 * normalY[0]
+        pointA[1] = centerpose[1] - th1 * normalX[1] - th2 * normalY[1]
+        pointA[2] = centerpose[2]
+        pointB[0] = centerpose[0] + th1 * normalX[0] - th2 * normalY[0]
+        pointB[1] = centerpose[1] + th1 * normalX[1] - th2 * normalY[1]
+        pointB[2] = centerpose[2]
+        pointC[0] = centerpose[0] - th1*normalX[0] + th2*normalY[0]
+        pointC[1] = centerpose[1] - th1*normalX[1] + th2*normalY[1]
+        pointC[2] = centerpose[2]
+        pointD[0] = centerpose[0] + th1*normalX[0] + th2*normalY[0]
+        pointD[1] = centerpose[1] + th1*normalX[1] + th2*normalY[1]
+        pointD[2] = centerpose[2]
 
         vertex[0] = pointA[0]
         vertex[1] = pointA[1]

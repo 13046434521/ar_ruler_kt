@@ -51,8 +51,8 @@ interface IMathInterview {
      */
     fun rotate(vector: FloatArray,angle:Float = 90.0f):FloatArray{
         val res = FloatArray(2)
-        res[0] = vector[0]* cos(angle) - vector[1]* sin(angle)
-        res[1] = vector[0]* sin(angle) + vector[1]* cos(angle)
+        res[0] = vector[0] * cos(angle) - vector[1] * sin(angle)
+        res[1] = vector[0] * sin(angle) + vector[1] * cos(angle)
         return res
     }
 
@@ -66,8 +66,8 @@ interface IMathInterview {
 
         val res = FloatArray(2)
 
-        res[0] = vector[0]/r
-        res[1] = vector[1]/r
+        res[0] = vector[0] / r
+        res[1] = vector[1] / r
 
         return res
     }
@@ -78,8 +78,8 @@ interface IMathInterview {
      * @param destVector FloatArray 目标向量(四维向量)
      * @param near Float 近剪切面
      */
-    fun mappingNear(resVector:FloatArray,destVector: FloatArray,near :Float=-0.1f) {
-        val threshold = destVector[2] / near
+    fun mappingNear(resVector:FloatArray,destVector: FloatArray,near :Float= -0.1f) {
+        val threshold = near / destVector[2]
 
         resVector[0] = destVector[0] * threshold
         resVector[1] = destVector[1] * threshold

@@ -1,8 +1,6 @@
 package com.android.ar_ruler_kt.opengl
 
 import android.graphics.*
-import android.util.Log
-import com.android.ar_ruler_kt.R
 
 /**
  * @author：TianLong
@@ -66,6 +64,7 @@ interface IBitmapInterview {
 
     fun drawBitmap(width:Int,height:Int,content:String):Bitmap{
         val bitmap =Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888)
+        bitmap.eraseColor(Color.argb(255,255,255,255))
         return drawBitmap(bitmap,content)
     }
 }

@@ -224,7 +224,7 @@ class BackgroundSurface: GLSurface ,SessionImpl {
                 lineRenderer.upDateMatrix(view,project)
                 lineRenderer.onDrawFrame()
 
-                drawPicture(list[index*2].pose, list[index*2+1].pose)
+                drawPicture(list[index*2].pose, list[index*2+1].pose,view,project)
             }
 
         // 当前锚点不为空时，进行渲染
@@ -243,7 +243,7 @@ class BackgroundSurface: GLSurface ,SessionImpl {
                 lineRenderer.upDateMatrix(view,project)
                 lineRenderer.onDrawFrame()
 
-                drawPicture(pose1,pose2)
+                drawPicture(pose1,pose2,view,project)
             }
         }
     }
@@ -269,24 +269,17 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         }
     }
 
-    fun drawPicture(pose1:Pose,pose2:Pose){
+    fun drawPicture(pose1:Pose,pose2:Pose,view: FloatArray,project: FloatArray){
         // 计算两个点之间的距离
         val length = pictureRenderer.length(pose1,pose2)
         val res = String.format("%.2f", length)
         // 获取将要绘制的bitmap
-        // pictureRenderer.bitmap = pictureRenderer.drawBitmap(200,100,"${res}m")
         pictureRenderer.setLength2Bitmap("${res}m")
-
-//        // 获取应该锚点的位置
-//        val position = floatArrayOf(
-//            (pose2.tx()+pose1.tx())/2,
-//            (pose2.ty()+pose1.ty())/2,
-//            (pose2.tz()+pose1.tz())/2,
-//            1f,
-//        )
-        pictureRenderer.upDataVertex(pose1,pose2,viewMatrix)
+        // 更新顶点坐标
+        pictureRenderer.upDataVertex(pose1,pose2,view)
         // 更新MVP矩阵，进行绘制
-        pictureRenderer.upDatePMatrix(projectMatrix)
+        pictureRenderer.upDateMatrix(view,project)
+//        pictureRenderer.upDatePMatrix(project)
         pictureRenderer.onDrawFrame()
     }
 }
