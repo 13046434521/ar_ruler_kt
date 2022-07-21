@@ -10,7 +10,7 @@ import android.graphics.*
 interface IBitmapInterview {
     val paint: Paint
         get() {
-            val tempPaint = Paint()
+            val tempPaint = Paint(Paint.ANTI_ALIAS_FLAG)
             tempPaint.color = Color.WHITE
             tempPaint.textSize = 250f
             tempPaint.style = Paint.Style.FILL
@@ -19,7 +19,7 @@ interface IBitmapInterview {
 
     val paintText: Paint
         get() {
-            val tempPaint = Paint()
+            val tempPaint = Paint(Paint.ANTI_ALIAS_FLAG)
             tempPaint.color = Color.BLACK
             tempPaint.textSize = 50f
             tempPaint.style = Paint.Style.FILL
@@ -27,7 +27,7 @@ interface IBitmapInterview {
         }
     val paintCircle: Paint
         get() {
-            val tempPaint = Paint()
+            val tempPaint = Paint(Paint.ANTI_ALIAS_FLAG)
             tempPaint.color = Color.BLUE
             tempPaint.textSize = 50f
             tempPaint.style = Paint.Style.FILL
@@ -39,14 +39,14 @@ interface IBitmapInterview {
     fun drawBitmap(data: Bitmap,content:String): Bitmap {
         // 保证bitmap是可编辑的
         val bitmap = data.copy(Bitmap.Config.ARGB_8888, true)
+        bitmap.eraseColor(Color.argb(255,255,255,255))
         val width = bitmap.width
         val height = bitmap.height
-        val rectF = RectF(0f, 0f, width.toFloat(), height.toFloat())
+        val rectF = RectF(0f, 0f, width.toFloat()+40, height.toFloat()+20)
 
         // 创建Canvas
         val canvas = Canvas(bitmap)
-        canvas.drawRoundRect(rectF, 100f, 100f, paint)
-
+        canvas.drawRoundRect(rectF, 50f, 50f, paint)
         // 获取文字的宽高
         val rect = Rect()
         paintText.getTextBounds(content,0, content.length,rect)
@@ -64,7 +64,7 @@ interface IBitmapInterview {
 
     fun drawBitmap(width:Int,height:Int,content:String):Bitmap{
         val bitmap =Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888)
-        bitmap.eraseColor(Color.argb(255,255,255,255))
+
         return drawBitmap(bitmap,content)
     }
 }

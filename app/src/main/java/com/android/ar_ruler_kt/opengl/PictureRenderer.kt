@@ -7,9 +7,11 @@ import android.opengl.GLES30
 import android.opengl.GLU
 import android.opengl.GLUtils
 import android.opengl.Matrix
+import android.util.Log
 import com.google.ar.core.Pose
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.*
 
 /**
  * @author：TianLong
@@ -81,7 +83,6 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         GLES30.glBindTexture(textureTarget,textureIds[0])
 
         GLES30.glUniform1i(u_ColorTexture,0)
-//        Matrix.setIdentityM(matrix,0)
         GLES30.glUniformMatrix4fv(u_MvpMatrix,1,false,matrix,0)
         GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
         GLES30.glEnableVertexAttribArray(a_Position)
@@ -133,10 +134,10 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         var newpose1 = FloatArray(4)
         var newpose2 = FloatArray(4)
 
-        mappingNear(newpose1,pos1_camera,-0.1f)
-        mappingNear(newpose2,pos2_camera,-0.1f)
-        newpose1 = pos1_camera
-        newpose2 = pos2_camera
+        mappingNear(newpose1,pos1_camera,- 0.1f)
+        mappingNear(newpose2,pos2_camera,- 0.1f)
+//        newpose1 = pos1_camera
+//        newpose2 = pos2_camera
         // newpose1，newpose2的中点
         val centerpose = floatArrayOf(
             (newpose2[0] + newpose1[0])/2,
@@ -150,31 +151,33 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         vectorX[0] = newpose2[0] - newpose1[0]
         vectorX[1] = newpose2[1] - newpose1[1]
 
+//        val vectorY = rotate(vectorX)
+//        val normalX = normal(vectorX)
+//        val normalY = normal(vectorY)
+
         // vector进行归一化
         val normalX = normal(vectorX)
         // 旋转90度，垂直向量
         val normalY = rotate(normalX)
 
-//        // 垂直向量归一化
-//        val normalY = normal(vectorY)
 
         val pointA = FloatArray(3)
         val pointB = FloatArray(3)
         val pointC = FloatArray(3)
         val pointD = FloatArray(3)
-        val th1 = 0.01f
-        val th2 = 0.005f
+        val th1 = 0.01f / 2
+        val th2 = 0.005f / 2
         pointA[0] = centerpose[0] - th1 * normalX[0] - th2 * normalY[0]
         pointA[1] = centerpose[1] - th1 * normalX[1] - th2 * normalY[1]
         pointA[2] = centerpose[2]
         pointB[0] = centerpose[0] + th1 * normalX[0] - th2 * normalY[0]
         pointB[1] = centerpose[1] + th1 * normalX[1] - th2 * normalY[1]
         pointB[2] = centerpose[2]
-        pointC[0] = centerpose[0] - th1*normalX[0] + th2*normalY[0]
-        pointC[1] = centerpose[1] - th1*normalX[1] + th2*normalY[1]
+        pointC[0] = centerpose[0] - th1 * normalX[0] + th2 * normalY[0]
+        pointC[1] = centerpose[1] - th1 * normalX[1] + th2 * normalY[1]
         pointC[2] = centerpose[2]
-        pointD[0] = centerpose[0] + th1*normalX[0] + th2*normalY[0]
-        pointD[1] = centerpose[1] + th1*normalX[1] + th2*normalY[1]
+        pointD[0] = centerpose[0] + th1 * normalX[0] + th2 * normalY[0]
+        pointD[1] = centerpose[1] + th1 * normalX[1] + th2 * normalY[1]
         pointD[2] = centerpose[2]
 
         vertex[0] = pointA[0]
@@ -192,7 +195,7 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         vertex[9] = pointD[0]
         vertex[10] = pointD[1]
         vertex[11] = pointD[2]
-
+        Log.e("CenterPose", centerpose.contentToString())
         vertexBuffer.put(vertex).position(0)
     }
 }

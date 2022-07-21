@@ -103,9 +103,12 @@ class BackgroundSurface: GLSurface ,SessionImpl {
 
             camera.getViewMatrix(viewMatrix,0)
             camera.getProjectionMatrix(projectMatrix,0,0.01f,10f)
+            // 暂时在此处渲染
+            drawPoint()
+            drawLine(null,anchorList,viewMatrix,projectMatrix)
 
-            val pointX=width/2F
-            val pointY=height/2F
+            val pointX = width/2F
+            val pointY = height/2F
             val hitResults =frame.hitTest(pointX,pointY)
 
             // 锚点不知道是否准确
@@ -191,7 +194,7 @@ class BackgroundSurface: GLSurface ,SessionImpl {
             Log.w(TAG,"delete: ${anchorList.size}")
         }
     }
-    
+
     private fun detectSuccess(){
         detectPointOrPlane=true
         iViewInterface?.detectSuccess()
@@ -278,8 +281,8 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         // 更新顶点坐标
         pictureRenderer.upDataVertex(pose1,pose2,view)
         // 更新MVP矩阵，进行绘制
-        pictureRenderer.upDateMatrix(view,project)
-//        pictureRenderer.upDatePMatrix(project)
+//        pictureRenderer.upDateMatrix(view,project)
+        pictureRenderer.upDatePMatrix(project)
         pictureRenderer.onDrawFrame()
     }
 }
