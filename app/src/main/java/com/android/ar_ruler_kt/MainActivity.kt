@@ -1,10 +1,7 @@
 package com.android.ar_ruler_kt
 
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
 import android.graphics.Point
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
@@ -13,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.ar_ruler_kt.helper.FullScreenHelper
 import com.android.ar_ruler_kt.helper.SessionHelper
 import com.android.ar_ruler_kt.opengl.BackgroundSurface
-import com.android.ar_ruler_kt.opengl.IBitmapInterview
 import com.google.ar.core.Session
 
 class MainActivity : AppCompatActivity(),View.OnClickListener,IViewInterface{

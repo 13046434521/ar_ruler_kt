@@ -67,4 +67,38 @@ interface IBitmapInterview {
 
         return drawBitmap(bitmap,content)
     }
+
+    /**
+     * Change bitmap
+     * 示例方法，修改bitmap rgb通道，以及 左右翻转，上下翻转
+     * @param bitmap
+     * @return 返回修改过的bitmap
+     */
+    fun changeBitmap(bitmap: Bitmap):Bitmap{
+        val newbitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+        val width = newbitmap.width
+        val height = newbitmap.height
+
+        val data = IntArray(width * height)
+        val newData = IntArray(width * height)
+        newbitmap.getPixels(data,0,width,0,0,width,height)
+        //int color = (A & 0xff) << 24 | (B & 0xff) << 16 | (G & 0xff) << 8 | (R & 0xff);
+        for (i in 0 until height){
+            for (j in 0 until width){
+                val temp  = data[i * width + j]
+                // 一个像素4个通道，每个通道是1个自己
+                // int占4个字节。
+                val a = temp shr 24 and 0xff
+                val b = temp shr 16 and 0xff
+                val g = temp shr 8 and 0xff
+                val r = temp shr 0 and 0xff
+
+                val color = ((a and 0xff) shl 24) or ((b and 0xff) shl 16) or((g and 0xff) shl 8 )or (r and 0xff)
+                newData[(height -i-1) * width + (width-j-1)] = color
+            }
+        }
+
+        newbitmap.setPixels(newData,0,width,0,0,width,height)
+        return newbitmap
+    }
 }
