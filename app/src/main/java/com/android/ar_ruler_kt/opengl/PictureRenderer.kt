@@ -120,7 +120,7 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
      * @param pose2 Pose
      * @param viewMatrix FloatArray
      */
-    fun upDataVertex(pose1:Pose,pose2:Pose,viewMatrix:FloatArray) {
+    fun upDataVertex(pose1:Pose,pose2:Pose,viewMatrix:FloatArray,project:FloatArray) {
         val pos1_world = floatArrayOf(pose1.tx(),pose1.ty(),pose1.tz(),1f)
         val pos2_world = floatArrayOf(pose2.tx(),pose2.ty(),pose2.tz(),1f)
 
@@ -136,8 +136,6 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
 
         mappingNear(newpose1,pos1_camera,- 0.1f)
         mappingNear(newpose2,pos2_camera,- 0.1f)
-//        newpose1 = pos1_camera
-//        newpose2 = pos2_camera
         // newpose1，newpose2的中点
         val centerpose = floatArrayOf(
             (newpose2[0] + newpose1[0])/2,
@@ -166,18 +164,24 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         val pointC = FloatArray(3)
         val pointD = FloatArray(3)
         val th1 = 0.01f / 2
-        val th2 = 0.005f / 2
-        pointA[0] = centerpose[0] - th1 * normalX[0] - th2 * normalY[0]
-        pointA[1] = centerpose[1] - th1 * normalX[1] - th2 * normalY[1]
+        val th2 = 0.025f / 2
+        val vector1X = th1 * normalX[0]
+        val vector1Y = th1 * normalX[1]
+
+        val vector2X = th2 * normalY[0]
+        val vector2Y = th2 * normalY[1]
+
+        pointA[0] = centerpose[0] - vector1X - vector2X
+        pointA[1] = centerpose[1] - vector1Y - vector2Y
         pointA[2] = centerpose[2]
-        pointB[0] = centerpose[0] + th1 * normalX[0] - th2 * normalY[0]
-        pointB[1] = centerpose[1] + th1 * normalX[1] - th2 * normalY[1]
+        pointB[0] = centerpose[0] + vector1X - vector2X
+        pointB[1] = centerpose[1] + vector1Y - vector2Y
         pointB[2] = centerpose[2]
-        pointC[0] = centerpose[0] - th1 * normalX[0] + th2 * normalY[0]
-        pointC[1] = centerpose[1] - th1 * normalX[1] + th2 * normalY[1]
+        pointC[0] = centerpose[0] - vector1X + vector2X
+        pointC[1] = centerpose[1] - vector1Y + vector2Y
         pointC[2] = centerpose[2]
-        pointD[0] = centerpose[0] + th1 * normalX[0] + th2 * normalY[0]
-        pointD[1] = centerpose[1] + th1 * normalX[1] + th2 * normalY[1]
+        pointD[0] = centerpose[0] + vector1X + vector2X
+        pointD[1] = centerpose[1] + vector1Y + vector2Y
         pointD[2] = centerpose[2]
 
         vertex[0] = pointA[0]
@@ -195,7 +199,7 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         vertex[9] = pointD[0]
         vertex[10] = pointD[1]
         vertex[11] = pointD[2]
-        Log.e("CenterPose", centerpose.contentToString())
+        Log.e("CenterPose", "${centerpose.contentToString()}  ${normalX.contentToString()}  ${normalY.contentToString()} ")
         vertexBuffer.put(vertex).position(0)
     }
 }

@@ -279,9 +279,8 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         // 获取将要绘制的bitmap
         pictureRenderer.setLength2Bitmap("${res}m")
         // 更新顶点坐标
-        pictureRenderer.upDataVertex(pose1,pose2,view)
+        pictureRenderer.upDataVertex(pose1,pose2,view,project)
         // 更新MVP矩阵，进行绘制
-//        pictureRenderer.upDateMatrix(view,project)
         pictureRenderer.upDatePMatrix(project)
         pictureRenderer.onDrawFrame()
     }
