@@ -6,7 +6,7 @@ package com.android.ar_ruler_kt
  * @detail：view 操作接口
  */
 interface IViewInterface {
-    fun detectSuccess()
+    fun detectSuccess(msg:String)
 
-    fun detectFailed()
+    fun detectFailed(msg:String)
 }

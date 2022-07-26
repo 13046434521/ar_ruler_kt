@@ -14,8 +14,6 @@ import java.nio.ByteOrder
 class PointRenderer(context: Context) : BaseRenderer(context) ,IMatrix{
     override var vertexPath: String = "shader/point_shader.vert"
     override var fragmentPath: String= "shader/point_shader.frag"
-//    override var vertexPath: String = "shader/RgbShader.vert"
-//    override var fragmentPath: String= "shader/RgbShader.frag"
 
     override var matrix = FloatArray(16)
 
@@ -60,7 +58,7 @@ class PointRenderer(context: Context) : BaseRenderer(context) ,IMatrix{
         GLES30.glEnable(GLES30.GL_CULL_FACE)
         GLES30.glEnableVertexAttribArray(a_Position)
         GLES30.glUniformMatrix4fv(u_MvpMatrix,1,false,matrix,0)
-        GLES30.glUniform1f(u_Size,30f)
+        GLES30.glUniform1f(u_Size,20f)
 
         GLES30.glVertexAttribPointer(a_Position,3,GLES30.GL_FLOAT,false,0,vertexBuffer)
         GLES30.glDrawArrays(GLES30.GL_POINTS,0,1)

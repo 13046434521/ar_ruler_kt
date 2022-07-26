@@ -73,8 +73,9 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         session?.run {
             displayRotationHelper.updateSessionIfNeeded(session)
             this.setCameraTextureName(backgroundRenderer.textureIds[0])
+            // ARCore 更新frame 数据
             val frame = this.update()
-
+            // 从ARCore获取顶点数据和纹理数据
             if (frame.hasDisplayGeometryChanged()) {
                 frame.transformCoordinates2d(
                     Coordinates2d.OPENGL_NORMALIZED_DEVICE_COORDINATES,
@@ -84,20 +85,19 @@ class BackgroundSurface: GLSurface ,SessionImpl {
             }
 
             if (frame.timestamp == 0L) {
-                detectFailed()
+                detectFailed("Time is 0")
                 return
             }
             backgroundRenderer.onDrawFrame()
-//            pictureRenderer.onDrawFrame()
+
             val tt = System.currentTimeMillis()
             val camera = frame.camera
 
             if (camera.trackingState!=TrackingState.TRACKING){
-               detectFailed()
+               detectFailed(camera.trackingState.name)
                 Log.e(TAG,"It's error  because camera trackingState is ${camera.trackingState.name}")
                 return
             }
-
 
             camera.getViewMatrix(viewMatrix,0)
             camera.getProjectionMatrix(projectMatrix,0,0.01f,10f)
@@ -112,42 +112,45 @@ class BackgroundSurface: GLSurface ,SessionImpl {
             // 锚点不知道是否准确
             if (hitResults.isNotEmpty() and (hitResults.size>0)){
                 val hitResult = hitResults.last()
-                trackable(hitResult.trackable)
+                trackable(hitResult.trackable) // 这一步仅仅是打印hitResult的trackable，没有任何实际意义
+
                 val trackable = hitResult.trackable
-//                (trackable is Plane ) && trackable.isPoseInPolygon(hitResult.hitPose)
-//                (trackable is Plane ) or (trackable is Point) or (trackable is DepthPoint )
-                if ((trackable is Plane ) && trackable.isPoseInPolygon(hitResult.hitPose)){
-                    var anchor : Anchor? = null
+
+//                if ((trackable is Plane ) && trackable.isPoseInPolygon(hitResult.hitPose)){
+                if((trackable is Plane ) or (trackable is Point) or (trackable is DepthPoint )){
+                    val anchor : Anchor
                     try {
                         anchor = hitResult.createAnchor()
+
+                        if (anchor.trackingState == TrackingState.TRACKING){
+                            detectSuccess()
+                            // 获取点的位置
+                            val pose = FloatArray(16)
+                            anchor.pose.toMatrix(pose ,0)
+
+                            // 渲染Bitmap(圆圈bitmap)
+                            bitmapRenderer.upDateMatrix(pose,viewMatrix,projectMatrix)
+                            bitmapRenderer.onDrawFrame()
+
+                            // 填加锚点
+                            addAnchorPoint(anchor)
+                            Log.e(TAG,"bitmapRenderer.onDrawFrame():${hitResult.distance}")
+                        }else{
+                           detectFailed(anchor.trackingState.name)
+                        }
+
+                        // 暂时在此处渲染
+                        drawPoint()
+                        drawLine(anchor,anchorList,viewMatrix,projectMatrix)
                     }catch (e:Exception){
                         Log.e(TAG,"Exception:$e")
                     }
-
-                    if (anchor?.trackingState == TrackingState.TRACKING){
-                        detectSuccess()
-                        // 获取点的位置
-                        val pose = FloatArray(16)
-                        anchor.pose.toMatrix(pose ,0)
-                        bitmapRenderer.upDateMatrix(pose,viewMatrix,projectMatrix)
-                        bitmapRenderer.onDrawFrame()
-
-                        // 填加锚点
-                        addAncorPoint(anchor)
-                        Log.e(TAG,"bitmapRenderer.onDrawFrame():${hitResult.distance}")
-                    }else{
-                       detectFailed()
-                    }
-
-                    // 暂时在此处渲染
-                    drawPoint()
-                    drawLine(anchor,anchorList,viewMatrix,projectMatrix)
                 }
                 else{
-                    detectFailed()
+                    detectFailed( trackable(hitResult.trackable))
                 }
             }else{
-                detectFailed()
+                detectFailed("list 列表为 空")
                 return
             }
 
@@ -155,7 +158,7 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         }
     }
 
-    fun trackable(trackable: Trackable){
+    private fun trackable(trackable: Trackable):String{
         val msg = when (trackable) {
             is Point -> "Point"
             is Plane -> "Plane"
@@ -167,6 +170,8 @@ class BackgroundSurface: GLSurface ,SessionImpl {
             else -> "Other"
         }
         Log.e(TAG,"trackable is $msg")
+
+        return "trackable is $msg"
     }
 
     fun add(){
@@ -193,27 +198,27 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         }
     }
 
-    private fun detectSuccess(){
+    private fun detectSuccess(msg:String = "检测成功"){
         detectPointOrPlane=true
-        iViewInterface?.detectSuccess()
+        iViewInterface?.detectSuccess(msg)
     }
 
-    private fun detectFailed(){
+    private fun detectFailed(msg:String = "检测失败"){
         detectPointOrPlane=false
-        iViewInterface?.detectFailed()
+        iViewInterface?.detectFailed(msg)
     }
 
-    private fun drawLine(currentAnchor: Anchor?,list:ArrayList<Anchor>,view:FloatArray,project:FloatArray){
+    /**
+     * Draw line
+     * 画线
+     * @param currentAnchor 当前锚点
+     * @param list 锚点list
+     * @param view 视矩阵
+     * @param project 投影矩阵
+     */
+    private fun drawLine(currentAnchor: Anchor?, list:ArrayList<Anchor>, view:FloatArray, project:FloatArray){
             val size = list.size / 2
             for (index in 0 until size){
-//                val point = floatArrayOf(
-//                    list[index*2].pose.tx(),
-//                    list[index*2].pose.ty(),
-//                    list[index*2].pose.tz(),
-//                    list[index*2+1].pose.tx(),
-//                    list[index*2+1].pose.ty(),
-//                    list[index*2+1].pose.tz(),
-//                )
                 // 两个点效果一样。所以注掉
                 val pose1 = list[index*2].pose.translation
                 val pose2 = list[index*2+1].pose.translation
@@ -249,7 +254,11 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         }
     }
 
-    fun drawPoint(){
+    /**
+     * Draw point
+     * 画点
+     */
+    private fun drawPoint(){
         for (anchor in anchorList){
             val pose = FloatArray(16)
             anchor.pose.toMatrix(pose ,0)
@@ -258,7 +267,7 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         }
     }
 
-    fun addAncorPoint(anchor: Anchor){
+    private fun addAnchorPoint(anchor: Anchor){
         anchorQueue.poll()?.run {
             anchorList.takeIf {anchorList.size==limitsSize }?.apply {
                 anchorList.first().detach()

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.ar_ruler_kt.helper.FullScreenHelper
@@ -18,6 +19,7 @@ class MainActivity : AppCompatActivity(),View.OnClickListener,IViewInterface,IBi
     val TAG = this.javaClass.simpleName
     var session:Session? = null
     val backgroundSurface :BackgroundSurface by lazy{findViewById(R.id.gl_main_background)}
+    val contentText:TextView by lazy { findViewById(R.id.tv_main_content) }
     val addImage:ImageView by lazy { findViewById(R.id.iv_main_add) }
     val deleteImage:ImageView by lazy { findViewById(R.id.iv_main_delete) }
     val promptImage:ImageView by lazy { findViewById(R.id.iv_main_prompt) }
@@ -83,18 +85,20 @@ class MainActivity : AppCompatActivity(),View.OnClickListener,IViewInterface,IBi
         backgroundSurface.delete()
     }
 
-    override fun detectSuccess() {
+    override fun detectSuccess(msg:String) {
         (promptImage.visibility == View.VISIBLE).run {
             runOnUiThread {
                 promptImage.visibility = View.GONE
+                contentText.text = msg
             }
         }
     }
 
-    override fun detectFailed() {
+    override fun detectFailed(msg:String) {
         (promptImage.visibility == View.GONE).run {
             runOnUiThread {
                 promptImage.visibility = View.VISIBLE
+                contentText.text = msg
             }
         }
     }

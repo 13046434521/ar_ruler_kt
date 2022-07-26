@@ -14,17 +14,13 @@ import java.util.*
 /**
  * @author：TianLong
  * @date：2022/7/9 12:12
- * @detail：
+ * @detail：距离长度渲染
  */
 class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmapInterview,IMathInterview{
     override var fragmentPath: String = "shader/bitmap_shader.frag"
     override var vertexPath: String = "shader/bitmap_shader.vert"
     override var matrix: FloatArray = FloatArray(16)
-    var bitmap :Bitmap
-    init {
-        bitmap = Bitmap.createBitmap(100,200,Bitmap.Config.ARGB_8888)
-//        bitmap = BitmapFactory.decodeStream(context.assets.open("test.webp"))
-    }
+    lateinit var bitmap :Bitmap
 
     var u_ColorTexture = -1
     var u_MvpMatrix = -1
@@ -32,7 +28,6 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
     var a_ColorTexCoord = -1
 
 
-    val threshold = 0.06f
     val vertex = FloatArray(12)
 
     var vertexBuffer  = ByteBuffer.allocateDirect(vertex.size * Float.SIZE_BYTES).order(ByteOrder.nativeOrder()).asFloatBuffer()
@@ -152,10 +147,6 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         val vectorX = FloatArray(2)
         vectorX[0] = newpose2[0] - newpose1[0]
         vectorX[1] = newpose2[1] - newpose1[1]
-
-//        val vectorY = rotate(vectorX)
-//        val normalX = normal(vectorX)
-//        val normalY = normal(vectorY)
 
         // vector进行归一化
         val normalX = normal(vectorX)
