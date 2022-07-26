@@ -156,7 +156,7 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         // vector进行归一化
         val normalX = normal(vectorX)
         // 旋转90度，垂直向量
-        val normalY = rotate(normalX)
+        val normalY = rotate(normalX,90f)
 
 
         val pointA = FloatArray(3)
@@ -164,7 +164,7 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         val pointC = FloatArray(3)
         val pointD = FloatArray(3)
         val th1 = 0.01f / 2
-        val th2 = 0.025f / 2
+        val th2 = 0.025f / 8
         val vector1X = th1 * normalX[0]
         val vector1Y = th1 * normalX[1]
 
@@ -184,21 +184,43 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         pointD[1] = centerpose[1] + vector1Y + vector2Y
         pointD[2] = centerpose[2]
 
-        vertex[0] = pointA[0]
-        vertex[1] = pointA[1]
-        vertex[2] = pointA[2]
+        // 保证看的时候，纹理始终朝上
+        // A点的Y 小于 C点的Y时。顶点坐标按A-B-C-D排序
+        // A点的Y不小于C点的Y时，顶点坐标按D-C-B-A排序
+        if (pointA[1]<pointC[1]){
+            vertex[0] = pointA[0]
+            vertex[1] = pointA[1]
+            vertex[2] = pointA[2]
 
-        vertex[3] = pointB[0]
-        vertex[4] = pointB[1]
-        vertex[5] = pointB[2]
+            vertex[3] = pointB[0]
+            vertex[4] = pointB[1]
+            vertex[5] = pointB[2]
 
-        vertex[6] = pointC[0]
-        vertex[7] = pointC[1]
-        vertex[8] = pointC[2]
+            vertex[6] = pointC[0]
+            vertex[7] = pointC[1]
+            vertex[8] = pointC[2]
 
-        vertex[9] = pointD[0]
-        vertex[10] = pointD[1]
-        vertex[11] = pointD[2]
+            vertex[9] = pointD[0]
+            vertex[10] = pointD[1]
+            vertex[11] = pointD[2]
+        }else{
+            vertex[0] = pointD[0]
+            vertex[1] = pointD[1]
+            vertex[2] = pointD[2]
+
+            vertex[3] = pointC[0]
+            vertex[4] = pointC[1]
+            vertex[5] = pointC[2]
+
+            vertex[6] = pointB[0]
+            vertex[7] = pointB[1]
+            vertex[8] = pointB[2]
+
+            vertex[9] = pointA[0]
+            vertex[10] = pointA[1]
+            vertex[11] = pointA[2]
+        }
+
         Log.e("CenterPose", "${centerpose.contentToString()}  ${normalX.contentToString()}  ${normalY.contentToString()} ")
         vertexBuffer.put(vertex).position(0)
     }

@@ -2,10 +2,7 @@ package com.android.ar_ruler_kt.opengl
 
 import android.util.Log
 import com.google.ar.core.Pose
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 /**
  * @author：TianLong
@@ -35,7 +32,7 @@ interface IMathInterview {
      *               y0 = y*cos(β) + x*sin(β)
      * @return
      */
-    fun rotate90(vector: FloatArray): FloatArray? {
+    fun rotate90(vector: FloatArray): FloatArray {
         val a = FloatArray(2)
         a[0] = vector[0] * rotate[0] + vector[1] * rotate[1]
         a[1] = vector[0] * rotate[2] + vector[1] * rotate[3]
@@ -51,6 +48,10 @@ interface IMathInterview {
      */
     fun rotate(vector: FloatArray,angle:Float = 90.0f):FloatArray{
         val res = FloatArray(2)
+        val t1 = Math.cos(angle.toDouble())
+        val t2 = cos(angle)
+        val t3 = Math.sin(angle.toDouble())
+        val t4 = sin(angle)
         res[0] = vector[0] * cos(angle) - vector[1] * sin(angle)
         res[1] = vector[0] * sin(angle) + vector[1] * cos(angle)
         return res
