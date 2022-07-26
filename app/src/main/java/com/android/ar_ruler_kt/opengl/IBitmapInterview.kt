@@ -36,17 +36,18 @@ interface IBitmapInterview {
     val canvas: Canvas
         get() = Canvas()
 
-    fun drawBitmap(data: Bitmap,content:String): Bitmap {
+
+    fun drawBitmap(width:Int,height:Int,content:String):Bitmap{
+        val bitmap =Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888)
         // 保证bitmap是可编辑的
-        val bitmap = data.copy(Bitmap.Config.ARGB_8888, true)
-        bitmap.eraseColor(Color.argb(255,255,255,255))
-        val width = bitmap.width
-        val height = bitmap.height
-        val rectF = RectF(0f, 0f, width.toFloat()+40, height.toFloat()+20)
+//        val bitmap = data.copy(Bitmap.Config.ARGB_8888, true)
+
+        val rectF = RectF(0f, 0f, (width).toFloat(), height.toFloat())
 
         // 创建Canvas
         val canvas = Canvas(bitmap)
-        canvas.drawRoundRect(rectF, 50f, 50f, paint)
+
+        canvas.drawRoundRect(rectF, 25f, 25f, paint)
         // 获取文字的宽高
         val rect = Rect()
         paintText.getTextBounds(content,0, content.length,rect)
@@ -58,14 +59,8 @@ interface IBitmapInterview {
         // 原因：想想文字左下角绘制在屏幕左上角（0，0）时的效果
         canvas.drawText( content,(width.toFloat()-textWidth)/2, (height.toFloat()+textHeight)/2,paintText)
 
-//      canvas.drawCircle( width.toFloat()/2, height.toFloat()/2,10.0f,paintCircle)
+//        canvas.drawCircle( width.toFloat()/2, height.toFloat()/2,60.0f,paintCircle)
         return bitmap
-    }
-
-    fun drawBitmap(width:Int,height:Int,content:String):Bitmap{
-        val bitmap =Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888)
-
-        return drawBitmap(bitmap,content)
     }
 
     /**

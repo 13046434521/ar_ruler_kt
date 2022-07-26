@@ -1,7 +1,6 @@
 package com.android.ar_ruler_kt.opengl
 
 import android.content.Context
-import android.graphics.Canvas
 import android.opengl.Matrix
 import android.util.AttributeSet
 import android.util.Log
@@ -9,7 +8,6 @@ import android.view.MotionEvent
 import com.android.ar_ruler_kt.IViewInterface
 import com.android.ar_ruler_kt.helper.DisplayRotationHelper
 import com.google.ar.core.*
-import java.lang.Exception
 import java.util.concurrent.ConcurrentLinkedQueue
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -277,9 +275,10 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         val length = pictureRenderer.length(pose1,pose2)
         val res = String.format("%.2f", length)
         // 获取将要绘制的bitmap
+
         pictureRenderer.setLength2Bitmap("${res}m")
         // 更新顶点坐标
-        pictureRenderer.upDataVertex(pose1,pose2,view,project)
+        pictureRenderer.upDataVertex(pose1,pose2,view)
         // 更新MVP矩阵，进行绘制
         pictureRenderer.upDatePMatrix(project)
         pictureRenderer.onDrawFrame()

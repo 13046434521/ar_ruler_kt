@@ -2,9 +2,7 @@ package com.android.ar_ruler_kt.opengl
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.opengl.GLES30
-import android.opengl.GLU
 import android.opengl.GLUtils
 import android.opengl.Matrix
 import android.util.Log
@@ -84,19 +82,25 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
 
         GLES30.glUniform1i(u_ColorTexture,0)
         GLES30.glUniformMatrix4fv(u_MvpMatrix,1,false,matrix,0)
-        GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
+
         GLES30.glEnableVertexAttribArray(a_Position)
-        GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
         GLES30.glEnableVertexAttribArray(a_ColorTexCoord)
-        GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
+        //开启背面剔除
         GLES30.glEnable(GLES30.GL_CULL_FACE)
-        GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
+        GLES30.glCullFace(GLES30.GL_BACK)
+        // 开启混色
+        GLES30.glEnable(GLES30.GL_BLEND)
+        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+
         GLES30.glVertexAttribPointer(a_Position,3,GLES30.GL_FLOAT,false,0,vertexBuffer)
         GLES30.glVertexAttribPointer(a_ColorTexCoord,2,GLES30.GL_FLOAT,false,0,textureBuffer)
+
         GLUtils.texImage2D(textureTarget,0,bitmap,0)
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP,0,4)
-        GLError.maybeThrowGLException("PictureRenderer", "onDrawFrame")
+
         GLES30.glDisable(GLES30.GL_CULL_FACE)
+        GLES30.glDisable(GLES30.GL_BLEND)
+
         GLES30.glDisableVertexAttribArray(a_Position)
         GLES30.glDisableVertexAttribArray(a_ColorTexCoord)
 
@@ -111,7 +115,7 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
      * @param content String
      */
     fun setLength2Bitmap(content:String){
-        bitmap = drawBitmap(200,100,content)
+        bitmap = drawBitmap(200,80,content)
     }
 
     /**
@@ -120,7 +124,7 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
      * @param pose2 Pose
      * @param viewMatrix FloatArray
      */
-    fun upDataVertex(pose1:Pose,pose2:Pose,viewMatrix:FloatArray,project:FloatArray) {
+    fun upDataVertex(pose1:Pose,pose2:Pose,viewMatrix:FloatArray) {
         val pos1_world = floatArrayOf(pose1.tx(),pose1.ty(),pose1.tz(),1f)
         val pos2_world = floatArrayOf(pose2.tx(),pose2.ty(),pose2.tz(),1f)
 
@@ -156,7 +160,7 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         // vector进行归一化
         val normalX = normal(vectorX)
         // 旋转90度，垂直向量
-        val normalY = rotate(normalX,90f)
+        val normalY = rotate90(normalX)
 
 
         val pointA = FloatArray(3)

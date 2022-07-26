@@ -12,7 +12,7 @@ import java.util.*
  * @date：2022/6/27 20:59
  * @detail：ARCore Session Helper类
  */
-object SessionHelper : Helper(){
+object SessionHelper:HelperInterface{
     val featureSet: Set<Session.Feature> = setOf()
     lateinit var session: Session
 

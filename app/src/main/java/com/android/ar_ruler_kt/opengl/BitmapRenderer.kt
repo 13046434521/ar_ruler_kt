@@ -16,7 +16,7 @@ import java.nio.FloatBuffer
  * @date：2022/6/30 22:28
  * @detail：Bitmap 渲染
  */
-class BitmapRenderer(context: Context) : BaseRenderer(context) ,IMatrix{
+class BitmapRenderer(context: Context) : BaseRenderer(context) ,IMatrix,IBitmapInterview{
     override var fragmentPath: String = "shader/bitmap_shader.frag"
     override var vertexPath: String = "shader/bitmap_shader.vert"
 //    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("test.webp")) }
@@ -114,8 +114,6 @@ class BitmapRenderer(context: Context) : BaseRenderer(context) ,IMatrix{
         GLES30.glEnableVertexAttribArray(a_ColorTexCoord)
         GLES30.glVertexAttribPointer(a_Position, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer)
         GLES30.glVertexAttribPointer(a_ColorTexCoord, 2, GLES30.GL_FLOAT, false, 0, textureBuffer)
-
-        GLES30.glDepthMask(false)
 
         // 开启背面剔除，默认的逆时针绘制为正面，开启后只绘制正面节省性能
         GLES30.glDisable(GLES30.GL_CULL_FACE)

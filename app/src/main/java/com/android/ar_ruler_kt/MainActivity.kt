@@ -8,11 +8,13 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.ar_ruler_kt.helper.FullScreenHelper
+import com.android.ar_ruler_kt.helper.Helper
 import com.android.ar_ruler_kt.helper.SessionHelper
 import com.android.ar_ruler_kt.opengl.BackgroundSurface
+import com.android.ar_ruler_kt.opengl.IBitmapInterview
 import com.google.ar.core.Session
 
-class MainActivity : AppCompatActivity(),View.OnClickListener,IViewInterface{
+class MainActivity : AppCompatActivity(),View.OnClickListener,IViewInterface,IBitmapInterview{
     val TAG = this.javaClass.simpleName
     var session:Session? = null
     val backgroundSurface :BackgroundSurface by lazy{findViewById(R.id.gl_main_background)}
@@ -33,9 +35,9 @@ class MainActivity : AppCompatActivity(),View.OnClickListener,IViewInterface{
         addImage.setOnClickListener(this)
         deleteImage.setOnClickListener(this)
 
-        val mPoint = Point()
-        this.windowManager.getDefaultDisplay().getSize(mPoint)
-        val motionEvent = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, mPoint.x / 2f, mPoint.y / 2f, 0);
+        val mPoint = Helper.obtainScreenSize(this)
+        val motionEvent = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, mPoint.x / 2f, mPoint.y / 2f, 0)
+
         session = SessionHelper.session
         backgroundSurface.session = session
         backgroundSurface.motionEvent = motionEvent
@@ -61,7 +63,7 @@ class MainActivity : AppCompatActivity(),View.OnClickListener,IViewInterface{
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        FullScreenHelper.setFullScreenOnWindowFocusChanged(this,true)
+        Helper.setFullScreenOnWindowFocusChanged(this,true)
     }
 
     override fun onClick(v: View) {
