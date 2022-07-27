@@ -19,8 +19,8 @@ import java.nio.FloatBuffer
 class BitmapRenderer(context: Context) : BaseRenderer(context) ,IMatrix,IBitmapInterview{
     override var fragmentPath: String = "shader/bitmap_shader.frag"
     override var vertexPath: String = "shader/bitmap_shader.vert"
-//    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("test.webp")) }
     val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("pointCircle.png")) }
+//    val bitmap:Bitmap by lazy { BitmapFactory.decodeStream(context.assets.open("pointCircleOut.png")) }
     init {
         textureTarget =GLES30.GL_TEXTURE_2D
     }

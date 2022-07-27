@@ -130,7 +130,7 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         Matrix.multiplyMV(pos2_camera, 0, viewMatrix, 0, pos2_world, 0)
 
 
-        val mappingNear = false // 是否投影在近剪切面上
+        val mappingNear = true // 是否投影在近剪切面上
         // 转为近剪切面上的两个点
         var newpose1 = FloatArray(4)
         var newpose2 = FloatArray(4)
