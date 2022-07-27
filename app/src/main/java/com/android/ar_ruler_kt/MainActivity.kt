@@ -37,12 +37,8 @@ class MainActivity : AppCompatActivity(),View.OnClickListener,IViewInterface,IBi
         addImage.setOnClickListener(this)
         deleteImage.setOnClickListener(this)
 
-        val mPoint = Helper.obtainScreenSize(this)
-        val motionEvent = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, mPoint.x / 2f, mPoint.y / 2f, 0)
-
         session = SessionHelper.session
         backgroundSurface.session = session
-        backgroundSurface.motionEvent = motionEvent
         backgroundSurface.iViewInterface = this
     }
 

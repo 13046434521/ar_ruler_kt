@@ -23,9 +23,9 @@ class BackgroundSurface: GLSurface ,SessionImpl {
     lateinit var pointRenderer: PointRenderer
     lateinit var lineRenderer: LineRenderer
     lateinit var pictureRenderer: PictureRenderer
+    val motionEvent:MotionEvent = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 0f, 0f, 0) // 没有具体意义
     var viewMatrix = FloatArray(16)
     var projectMatrix = FloatArray(16)
-    var motionEvent:MotionEvent? = null
     var iViewInterface:IViewInterface? = null
     private val anchorQueue:ConcurrentLinkedQueue<MotionEvent> by lazy {ConcurrentLinkedQueue<MotionEvent>() }
     private val limitsSize = 10 // 点的上限个数
@@ -107,23 +107,23 @@ class BackgroundSurface: GLSurface ,SessionImpl {
 
             val pointX = width/2F
             val pointY = height/2F
-            val hitResults =frame.hitTest(pointX,pointY)
+            val hitResults =frame.hitTest(pointX,pointY) // 检测点为屏幕正中央
 
             // 锚点不知道是否准确
             if (hitResults.isNotEmpty() and (hitResults.size>0)){
                 val hitResult = hitResults.last()
-                trackable(hitResult.trackable) // 这一步仅仅是打印hitResult的trackable，没有任何实际意义
+                val type = trackable(hitResult.trackable) // 这一步仅仅是打印hitResult的trackable，没有任何实际意义
 
                 val trackable = hitResult.trackable
 
-//                if ((trackable is Plane ) && trackable.isPoseInPolygon(hitResult.hitPose)){
-                if((trackable is Plane ) or (trackable is Point) or (trackable is DepthPoint )){
+//                if ((trackable is Plane ) && trackable.isPoseInPolygon(hitResult.hitPose)){ // 追踪类型为平面，且锚点在平面上，检测太为苛刻
+                if((trackable is Plane ) or (trackable is Point) or (trackable is DepthPoint )){// 追踪类型为平面，点，深度点即可
                     val anchor : Anchor
                     try {
                         anchor = hitResult.createAnchor()
 
                         if (anchor.trackingState == TrackingState.TRACKING){
-                            detectSuccess()
+                            detectSuccess("Anchor: $type ${anchor.trackingState.name} ")
                             // 获取点的位置
                             val pose = FloatArray(16)
                             anchor.pose.toMatrix(pose ,0)
@@ -140,17 +140,17 @@ class BackgroundSurface: GLSurface ,SessionImpl {
                         }
 
                         // 暂时在此处渲染
-                        drawPoint()
+                        drawPoint(true)
                         drawLine(anchor,anchorList,viewMatrix,projectMatrix)
                     }catch (e:Exception){
                         Log.e(TAG,"Exception:$e")
                     }
                 }
                 else{
-                    detectFailed( trackable(hitResult.trackable))
+                    detectFailed(trackable(hitResult.trackable))
                 }
             }else{
-                detectFailed("list 列表为 空")
+                detectFailed("请移动手机，获取特征值")
                 return
             }
 
@@ -171,7 +171,7 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         }
         Log.e(TAG,"trackable is $msg")
 
-        return "trackable is $msg"
+        return msg
     }
 
     fun add(){
@@ -182,31 +182,43 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         }
     }
 
+    @Synchronized
+    private fun addAnchorPoint(anchor: Anchor){
+        anchorQueue.poll()?.run {
+            anchorList.takeIf {anchorList.size==limitsSize }?.apply {
+                anchorList.first().detach()
+                anchorList.removeFirst()
+                anchorList.first().detach()
+                anchorList.removeFirst()
+            }
+            anchorList.add(anchor)
+        }
+    }
+    @Synchronized
     fun delete(){
         if (detectPointOrPlane && anchorList.isNotEmpty()){
             if (anchorList.size%2==0){
+                Log.w(TAG,"delete:1 ${anchorList.size}")
                 anchorList.last().detach()
+                Log.w(TAG,"delete:2 ${anchorList.size}")
                 anchorList.removeLast()
+                Log.w(TAG,"delete:3 ${anchorList.size}")
                 anchorList.last().detach()
+                Log.w(TAG,"delete:4 ${anchorList.size}")
                 anchorList.removeLast()
+                Log.w(TAG,"delete:5 ${anchorList.size}")
             }else{
+                Log.w(TAG,"delete:6 ${anchorList.size}")
                 anchorList.last().detach()
+                Log.w(TAG,"delete:7 ${anchorList.size}")
                 anchorList.removeLast()
+                Log.w(TAG,"delete:8 ${anchorList.size}")
             }
 
             Log.w(TAG,"delete: ${anchorList.size}")
         }
     }
 
-    private fun detectSuccess(msg:String = "检测成功"){
-        detectPointOrPlane=true
-        iViewInterface?.detectSuccess(msg)
-    }
-
-    private fun detectFailed(msg:String = "检测失败"){
-        detectPointOrPlane=false
-        iViewInterface?.detectFailed(msg)
-    }
 
     /**
      * Draw line
@@ -216,6 +228,7 @@ class BackgroundSurface: GLSurface ,SessionImpl {
      * @param view 视矩阵
      * @param project 投影矩阵
      */
+    @Synchronized
     private fun drawLine(currentAnchor: Anchor?, list:ArrayList<Anchor>, view:FloatArray, project:FloatArray){
             val size = list.size / 2
             for (index in 0 until size){
@@ -257,28 +270,29 @@ class BackgroundSurface: GLSurface ,SessionImpl {
     /**
      * Draw point
      * 画点
+     * @param draw 当点个数为单数时，是否画单独的那个点
      */
-    private fun drawPoint(){
-        for (anchor in anchorList){
+    @Synchronized
+    private fun drawPoint(draw:Boolean = false){
+        if (anchorList.isNullOrEmpty()){
+            return
+        }
+        val remainder = anchorList.size % 2
+        var size = anchorList.size - 1
+        if (!draw && remainder!=0){
+            size -= 1
+        }
+
+        for (i in 0..size){
             val pose = FloatArray(16)
+            val anchor = anchorList[i]
             anchor.pose.toMatrix(pose ,0)
             pointRenderer.upDateMatrix(pose,viewMatrix,projectMatrix)
             pointRenderer.onDrawFrame()
         }
     }
 
-    private fun addAnchorPoint(anchor: Anchor){
-        anchorQueue.poll()?.run {
-            anchorList.takeIf {anchorList.size==limitsSize }?.apply {
-                anchorList.first().detach()
-                anchorList.removeFirst()
-                anchorList.first().detach()
-                anchorList.removeFirst()
-            }
-            anchorList.add(anchor)
-        }
-    }
-
+    @Synchronized
     fun drawPicture(pose1:Pose,pose2:Pose,view: FloatArray,project: FloatArray){
         // 计算两个点之间的距离
         val length = pictureRenderer.length(pose1,pose2)
@@ -291,5 +305,16 @@ class BackgroundSurface: GLSurface ,SessionImpl {
         // 更新MVP矩阵，进行绘制
         pictureRenderer.upDatePMatrix(project)
         pictureRenderer.onDrawFrame()
+    }
+
+
+    private fun detectSuccess(msg:String = "检测成功"){
+        detectPointOrPlane=true
+        iViewInterface?.detectSuccess(msg)
+    }
+
+    private fun detectFailed(msg:String = "检测失败"){
+        detectPointOrPlane=false
+        iViewInterface?.detectFailed(msg)
     }
 }
