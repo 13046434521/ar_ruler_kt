@@ -129,12 +129,19 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
         Matrix.multiplyMV(pos1_camera, 0, viewMatrix, 0, pos1_world, 0)
         Matrix.multiplyMV(pos2_camera, 0, viewMatrix, 0, pos2_world, 0)
 
+
+        val mappingNear = false // 是否投影在近剪切面上
         // 转为近剪切面上的两个点
         var newpose1 = FloatArray(4)
         var newpose2 = FloatArray(4)
+        if (mappingNear){
+            mappingNear(newpose1,pos1_camera,- 0.1f)
+            mappingNear(newpose2,pos2_camera,- 0.1f)
+        }else{
+            newpose1 = pos1_camera
+            newpose2 = pos2_camera
+        }
 
-        mappingNear(newpose1,pos1_camera,- 0.1f)
-        mappingNear(newpose2,pos2_camera,- 0.1f)
         // newpose1，newpose2的中点
         val centerpose = floatArrayOf(
             (newpose2[0] + newpose1[0])/2,
@@ -150,16 +157,23 @@ class PictureRenderer(context: Context) : BaseRenderer(context),IMatrix ,IBitmap
 
         // vector进行归一化
         val normalX = normal(vectorX)
-        // 旋转90度，垂直向量
+        // 旋转90度，垂直向量，此处容易有问题，原因是Java的cos90°不为0
         val normalY = rotate90(normalX)
-
 
         val pointA = FloatArray(3)
         val pointB = FloatArray(3)
         val pointC = FloatArray(3)
         val pointD = FloatArray(3)
-        val th1 = 0.01f / 2
-        val th2 = 0.025f / 8
+
+        val th1: Float
+        val th2: Float
+        if (mappingNear){
+            th1 = 0.01f / 2
+            th2 = 0.025f / 8
+        }else{
+            th1 = 0.01f / 2 * 10
+            th2 = 0.025f / 8 * 10
+        }
         val vector1X = th1 * normalX[0]
         val vector1Y = th1 * normalX[1]
 
